@@ -126,27 +126,41 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                     <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            setIsUploading(true);
                                             try {
-                                                // Compress image before uploading
+                                                setIsUploading(true);
+                                                // Compress image
                                                 const compressedBlob = await compressImage(file, 1, 1920);
-                                                const compressedFile = blobToFile(compressedBlob, file.name);
 
-                                                const formDataUpload = new FormData();
-                                                formDataUpload.append('file', compressedFile);
-                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
-                                                if (!res.ok) {
-                                                    const errorText = await res.text();
-                                                    throw new Error(`Upload failed (${res.status}): ${errorText.substring(0, 100)}`);
-                                                }
-                                                const data = await res.json();
-                                                if (data.url) {
-                                                    setFormData(prev => ({ ...prev, backgroundImageUrl: data.url }));
-                                                }
+                                                // Convert to Base64
+                                                const reader = new FileReader();
+                                                reader.onloadend = async () => {
+                                                    const base64data = reader.result as string;
+                                                    try {
+                                                        const res = await fetch('/api/upload', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ file: base64data })
+                                                        });
+
+                                                        if (!res.ok) {
+                                                            const errorData = await res.json();
+                                                            throw new Error(`Upload failed (${res.status}): ${errorData.error || 'Unknown error'}`);
+                                                        }
+                                                        const data = await res.json();
+                                                        if (data.url) {
+                                                            setFormData(prev => ({ ...prev, backgroundImageUrl: data.url }));
+                                                        }
+                                                    } catch (uploadError: any) {
+                                                        console.error(uploadError);
+                                                        alert(`Lỗi upload: ${uploadError.message}`);
+                                                    } finally {
+                                                        setIsUploading(false);
+                                                    }
+                                                };
+                                                reader.readAsDataURL(compressedBlob);
                                             } catch (err: any) {
                                                 console.error(err);
-                                                alert(`Lỗi upload: ${err.message}`);
-                                            } finally {
+                                                alert(`Lỗi xử lý ảnh: ${err.message}`);
                                                 setIsUploading(false);
                                             }
                                         }
@@ -173,26 +187,37 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                     <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            setIsUploading(true);
                                             try {
-                                                // Compress image before uploading (smaller size for icons)
+                                                setIsUploading(true);
+                                                // Compress image (smaller for icons)
                                                 const compressedBlob = await compressImage(file, 0.5, 512);
-                                                const compressedFile = blobToFile(compressedBlob, file.name);
 
-                                                const formDataUpload = new FormData();
-                                                formDataUpload.append('file', compressedFile);
-                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
-                                                const data = await res.json();
-                                                if (data.url) {
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        customIcons: { ...prev.customIcons, se: data.url }
-                                                    }));
-                                                }
-                                            } catch (err) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = async () => {
+                                                    const base64data = reader.result as string;
+                                                    try {
+                                                        const res = await fetch('/api/upload', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ file: base64data })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.url) {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                customIcons: { ...prev.customIcons, se: data.url }
+                                                            }));
+                                                        }
+                                                    } catch (err: any) {
+                                                        console.error(err);
+                                                        alert('Lỗi upload icon');
+                                                    } finally {
+                                                        setIsUploading(false);
+                                                    }
+                                                };
+                                                reader.readAsDataURL(compressedBlob);
+                                            } catch (err: any) {
                                                 console.error(err);
-                                                alert('Lỗi upload icon');
-                                            } finally {
                                                 setIsUploading(false);
                                             }
                                         }
@@ -216,26 +241,37 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                     <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            setIsUploading(true);
                                             try {
-                                                // Compress image before uploading (smaller size for icons)
+                                                setIsUploading(true);
+                                                // Compress image
                                                 const compressedBlob = await compressImage(file, 0.5, 512);
-                                                const compressedFile = blobToFile(compressedBlob, file.name);
 
-                                                const formDataUpload = new FormData();
-                                                formDataUpload.append('file', compressedFile);
-                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
-                                                const data = await res.json();
-                                                if (data.url) {
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        customIcons: { ...prev.customIcons, photographer: data.url }
-                                                    }));
-                                                }
-                                            } catch (err) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = async () => {
+                                                    const base64data = reader.result as string;
+                                                    try {
+                                                        const res = await fetch('/api/upload', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ file: base64data })
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.url) {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                customIcons: { ...prev.customIcons, photographer: data.url }
+                                                            }));
+                                                        }
+                                                    } catch (err: any) {
+                                                        console.error(err);
+                                                        alert('Lỗi upload icon');
+                                                    } finally {
+                                                        setIsUploading(false);
+                                                    }
+                                                };
+                                                reader.readAsDataURL(compressedBlob);
+                                            } catch (err: any) {
                                                 console.error(err);
-                                                alert('Lỗi upload icon');
-                                            } finally {
                                                 setIsUploading(false);
                                             }
                                         }
