@@ -1,10 +1,23 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
+import streamifier from 'streamifier';
 import dotenv from 'dotenv';
 import Profile from './models/Profile.js';
 
 dotenv.config();
+
+// Cloudinary Config
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Multer Setup
+const upload = multer();
 
 const app = express();
 
@@ -34,6 +47,28 @@ const connectDB = async () => {
 app.use(async (req, res, next) => {
     await connectDB();
     next();
+});
+
+// Upload Route
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: 'profile_uploads' },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+        res.json({ url: result.secure_url });
+    } catch (err) {
+        console.error('Cloudinary Upload Error:', err);
+        res.status(500).json({ error: 'Upload failed' });
+    }
 });
 
 // Routes

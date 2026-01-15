@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { X, Plus, Trash, Edit } from 'lucide-react';
+import { X, Plus, Trash, Edit, Upload } from 'lucide-react';
 import { Project, Skill, Achievement, Experience, Service, PortfolioCategory } from '@/types/data';
 
 interface ManageContentModalProps {
@@ -28,6 +28,27 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
     const [editingExperience, setEditingExperience] = useState<Partial<Experience> | null>(null);
     const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
     const [editingPortfolioCategory, setEditingPortfolioCategory] = useState<Partial<PortfolioCategory> | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleFileUpload = async (file: File) => {
+        try {
+            setIsUploading(true);
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return data.url;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Upload thất bại');
+            return null;
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -189,12 +210,24 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingProject.description}
                                         onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
                                     />
-                                    <input
-                                        className="w-full border p-2 rounded"
-                                        placeholder="URL Hình ảnh"
-                                        value={editingProject.image || ''}
-                                        onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
-                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            className="w-full border p-2 rounded"
+                                            placeholder="URL Hình ảnh"
+                                            value={editingProject.image || ''}
+                                            onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
+                                        />
+                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
+                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const url = await handleFileUpload(file);
+                                                    if (url) setEditingProject(prev => ({ ...prev!, image: url }));
+                                                }
+                                            }} />
+                                        </label>
+                                    </div>
                                     <input
                                         className="w-full border p-2 rounded"
                                         placeholder="Công nghệ (phân cách bằng dấu phẩy)"
@@ -269,12 +302,24 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingSkill.yearsOfExperience}
                                         onChange={e => setEditingSkill({ ...editingSkill, yearsOfExperience: Number(e.target.value) })}
                                     />
-                                    <input
-                                        className="w-full border p-2 rounded"
-                                        placeholder="URL Biểu tượng (tùy chọn)"
-                                        value={editingSkill.iconUrl || ''}
-                                        onChange={e => setEditingSkill({ ...editingSkill, iconUrl: e.target.value })}
-                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            className="w-full border p-2 rounded"
+                                            placeholder="URL Biểu tượng (tùy chọn)"
+                                            value={editingSkill.iconUrl || ''}
+                                            onChange={e => setEditingSkill({ ...editingSkill, iconUrl: e.target.value })}
+                                        />
+                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
+                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const url = await handleFileUpload(file);
+                                                    if (url) setEditingSkill(prev => ({ ...prev!, iconUrl: url }));
+                                                }
+                                            }} />
+                                        </label>
+                                    </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSaveSkill} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
                                         <button onClick={() => setEditingSkill(null)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded">Hủy</button>
@@ -330,12 +375,24 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingAchievement.date}
                                         onChange={e => setEditingAchievement({ ...editingAchievement, date: e.target.value })}
                                     />
-                                    <input
-                                        className="w-full border p-2 rounded"
-                                        placeholder="URL Hình ảnh"
-                                        value={editingAchievement.image || ''}
-                                        onChange={e => setEditingAchievement({ ...editingAchievement, image: e.target.value })}
-                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            className="w-full border p-2 rounded"
+                                            placeholder="URL Hình ảnh"
+                                            value={editingAchievement.image || ''}
+                                            onChange={e => setEditingAchievement({ ...editingAchievement, image: e.target.value })}
+                                        />
+                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
+                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const url = await handleFileUpload(file);
+                                                    if (url) setEditingAchievement(prev => ({ ...prev!, image: url }));
+                                                }
+                                            }} />
+                                        </label>
+                                    </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSaveAchievement} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
                                         <button onClick={() => setEditingAchievement(null)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded">Hủy</button>

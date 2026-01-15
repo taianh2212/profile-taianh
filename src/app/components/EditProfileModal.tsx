@@ -14,14 +14,29 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
 
     if (!isOpen) return null;
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, avatarUrl: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+            try {
+                setIsUploading(true);
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.url) {
+                    setFormData(prev => ({ ...prev, avatarUrl: data.url }));
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                alert('Upload thất bại');
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
@@ -53,10 +68,10 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                             )}
                         </div>
                         <div>
-                            <label className="cursor-pointer bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2">
+                            <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                 <Upload size={18} />
-                                Tải Ảnh Đại Diện
-                                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                                {isUploading ? 'Đang Tải Lên...' : 'Tải Ảnh Đại Diện'}
+                                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
                             </label>
                         </div>
                     </div>
