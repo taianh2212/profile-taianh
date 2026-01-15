@@ -82,7 +82,20 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         res.json({ url: result.secure_url });
     } catch (err) {
         console.error('Cloudinary Upload catch:', err);
-        res.status(500).json({ error: err.message || 'Unknown upload error' });
+
+        // Debug info to diagnose environment variable issues
+        const debugInfo = {
+            cloudNameExists: !!process.env.CLOUDINARY_CLOUD_NAME,
+            apiKeyExists: !!process.env.CLOUDINARY_API_KEY,
+            apiSecretExists: !!process.env.CLOUDINARY_API_SECRET,
+            envKeys: Object.keys(process.env).filter(k => k.startsWith('CLOUDINARY'))
+        };
+        console.error('Env Debug:', debugInfo);
+
+        res.status(500).json({
+            error: err.message || 'Unknown upload error',
+            debug: debugInfo
+        });
     }
 });
 
