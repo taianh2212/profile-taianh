@@ -5,13 +5,14 @@ const ProfileSchema = new mongoose.Schema({
         name: String,
         role: String,
         welcomeMessage: String,
+        avatarUrl: String,
+        backgroundImageUrl: String,
         yearsOfExperience: Number,
         projectsCount: Number,
         customIcons: {
             se: String,
             photographer: String
         },
-        backgroundImageUrl: String,
         seStats: {
             years: Number,
             projects: Number,
