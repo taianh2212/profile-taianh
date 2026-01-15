@@ -27,8 +27,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             try {
                 setIsUploading(true);
 
-                // Compress image
-                const compressedBlob = await compressImage(file, 1, 1920);
+                // Compress image (smaller size for Vercel limit)
+                const compressedBlob = await compressImage(file, 0.3, 800);
 
                 // Convert blob to base64
                 const reader = new FileReader();
@@ -128,8 +128,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         if (file) {
                                             try {
                                                 setIsUploading(true);
-                                                // Compress image
-                                                const compressedBlob = await compressImage(file, 1, 1920);
+                                                // Compress image (smaller size for Vercel limit)
+                                                const compressedBlob = await compressImage(file, 0.3, 800);
 
                                                 // Convert to Base64
                                                 const reader = new FileReader();
@@ -190,7 +190,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                             try {
                                                 setIsUploading(true);
                                                 // Compress image (smaller for icons)
-                                                const compressedBlob = await compressImage(file, 0.5, 512);
+                                                const compressedBlob = await compressImage(file, 0.2, 400);
 
                                                 const reader = new FileReader();
                                                 reader.onloadend = async () => {
@@ -243,8 +243,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         if (file) {
                                             try {
                                                 setIsUploading(true);
-                                                // Compress image
-                                                const compressedBlob = await compressImage(file, 0.5, 512);
+                                                // Compress image (smaller size for Vercel limit)
+                                                const compressedBlob = await compressImage(file, 0.2, 400);
 
                                                 const reader = new FileReader();
                                                 reader.onloadend = async () => {
