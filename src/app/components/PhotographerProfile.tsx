@@ -37,7 +37,9 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
     { number: `${data.profile.photoStats?.clients || 0}+`, label: 'Khách Hàng', icon: Users },
   ];
 
-  const displayedPortfolioItems = showAllProjects ? data.portfolioCategories : data.portfolioCategories.slice(0, 5);
+  // Sort portfolio items - newest first (reverse order)
+  const sortedPortfolioItems = [...data.portfolioCategories].reverse();
+  const displayedPortfolioItems = showAllProjects ? sortedPortfolioItems : sortedPortfolioItems.slice(0, 5);
 
 
   return (

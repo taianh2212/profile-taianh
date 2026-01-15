@@ -40,7 +40,9 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
     return gradients[index % gradients.length];
   };
 
-  const displayedProjects = showAllProjects ? data.projects : data.projects.slice(0, 4);
+  // Sort projects - newest first (reverse order)
+  const sortedProjects = [...data.projects].reverse();
+  const displayedProjects = showAllProjects ? sortedProjects : sortedProjects.slice(0, 4);
 
   const experience = [
     { years: `${data.profile.seStats?.years || data.profile.yearsOfExperience}+`, label: 'Năm Kinh Nghiệm' },
