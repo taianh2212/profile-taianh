@@ -46,9 +46,10 @@ const ProfileSchema = new mongoose.Schema({
         id: String,
         title: String,
         description: String,
+        image: String,
         technologies: [String],
-        status: String,
-        image: String
+        link: String,
+        status: String
     }],
     achievements: [{
         id: String,
