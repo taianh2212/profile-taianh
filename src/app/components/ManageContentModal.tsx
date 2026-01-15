@@ -46,6 +46,16 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
         onError: (error) => alert(`Lỗi upload: ${error.message}`)
     });
 
+    const portfolioGalleryUpload = useCloudinaryUpload({
+        onSuccess: (url) => {
+            setEditingPortfolioCategory(prev => ({
+                ...prev!,
+                images: [...(prev?.images || []), url]
+            }));
+        },
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
+
     const handleFileUpload = async (file: File) => {
         // This function is no longer used but kept for compatibility
         console.error('handleFileUpload is deprecated, use Cloudinary widget instead');
@@ -619,11 +629,21 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Thư viện ảnh chi tiết (URLs phân cách bằng dấu phẩy)</label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-sm font-medium text-gray-700">Thư viện ảnh chi tiết</label>
+                                            <button
+                                                type="button"
+                                                onClick={portfolioGalleryUpload.openUploadWidget}
+                                                className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1.5 rounded hover:bg-emerald-100 flex items-center gap-2 text-sm"
+                                            >
+                                                <Upload size={16} />
+                                                <span>Tải ảnh lên</span>
+                                            </button>
+                                        </div>
                                         <textarea
                                             className="w-full border p-2 rounded"
-                                            placeholder="URL1, URL2, URL3..."
-                                            rows={3}
+                                            placeholder="Hoặc nhập URLs phân cách bằng dấu phẩy"
+                                            rows={2}
                                             value={editingPortfolioCategory.images?.join(', ') || ''}
                                             onChange={e => setEditingPortfolioCategory({ 
                                                 ...editingPortfolioCategory, 
@@ -633,7 +653,20 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         {editingPortfolioCategory.images && editingPortfolioCategory.images.length > 0 && (
                                             <div className="grid grid-cols-4 gap-2 mt-2">
                                                 {editingPortfolioCategory.images.map((img, idx) => (
-                                                    <img key={idx} src={img} alt="" className="w-full h-24 object-cover rounded border" />
+                                                    <div key={idx} className="relative group">
+                                                        <img src={img} alt="" className="w-full h-24 object-cover rounded border" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newImages = [...(editingPortfolioCategory.images || [])];
+                                                                newImages.splice(idx, 1);
+                                                                setEditingPortfolioCategory({ ...editingPortfolioCategory, images: newImages });
+                                                            }}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
