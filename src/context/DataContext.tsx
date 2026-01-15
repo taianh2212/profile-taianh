@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { AppData, Experience, ProfileData, Project, Skill, Achievement, Service, PortfolioCategory } from '@/types/data';
+import avatarImage from '@/assets/TaiAnh-07259.jpg';
 
 interface DataContextType {
     data: AppData;
@@ -30,6 +31,7 @@ const initialData: AppData = {
         name: 'Tai Anh',
         role: 'Software Engineer & Photographer',
         welcomeMessage: 'Chào mừng bạn đến với trang cá nhân của tổi',
+        avatarUrl: avatarImage,
         yearsOfExperience: 5,
         projectsCount: 100,
         clientsCount: 50,
