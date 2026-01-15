@@ -53,10 +53,11 @@ app.use(async (req, res, next) => {
 // Upload Route
 app.post('/api/upload', upload.single('file'), async (req, res) => {
     // Re-configure Cloudinary per request to ensure env vars are picked up in serverless environment
+    // Also trim whitespace to prevent 'Invalid Signature' errors from copy-paste
     cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+        api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+        api_secret: process.env.CLOUDINARY_API_SECRET?.trim()
     });
 
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
