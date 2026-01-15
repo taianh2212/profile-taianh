@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
 import { X, Plus, Trash, Edit, Upload } from 'lucide-react';
 import { Project, Skill, Achievement, Experience, Service, PortfolioCategory } from '@/types/data';
+import { useCloudinaryUpload } from '@/hooks/useCloudinaryUpload';
 
 interface ManageContentModalProps {
     isOpen: boolean;
@@ -28,26 +29,27 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
     const [editingExperience, setEditingExperience] = useState<Partial<Experience> | null>(null);
     const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
     const [editingPortfolioCategory, setEditingPortfolioCategory] = useState<Partial<PortfolioCategory> | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+
+    // Cloudinary upload hooks
+    const projectImageUpload = useCloudinaryUpload({
+        onSuccess: (url) => setEditingProject(prev => ({ ...prev!, image: url })),
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
+
+    const achievementImageUpload = useCloudinaryUpload({
+        onSuccess: (url) => setEditingAchievement(prev => ({ ...prev!, image: url })),
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
+
+    const portfolioImageUpload = useCloudinaryUpload({
+        onSuccess: (url) => setEditingPortfolioCategory(prev => ({ ...prev!, image: url })),
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
 
     const handleFileUpload = async (file: File) => {
-        try {
-            setIsUploading(true);
-            const formData = new FormData();
-            formData.append('file', file);
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            return data.url;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            alert('Upload thất bại');
-            return null;
-        } finally {
-            setIsUploading(false);
-        }
+        // This function is no longer used but kept for compatibility
+        console.error('handleFileUpload is deprecated, use Cloudinary widget instead');
+        return null;
     };
 
     if (!isOpen) return null;
@@ -233,16 +235,13 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                             />
                                             {editingProject.image && <img src={editingProject.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
                                         </div>
-                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const url = await handleFileUpload(file);
-                                                    if (url) setEditingProject(prev => ({ ...prev!, image: url }));
-                                                }
-                                            }} />
-                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={projectImageUpload.openUploadWidget}
+                                            className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 p-2 rounded hover:bg-emerald-100 flex-shrink-0 flex items-center gap-2"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
                                     </div>
                                     <input
                                         className="w-full border p-2 rounded"
@@ -404,16 +403,13 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                             />
                                             {editingAchievement.image && <img src={editingAchievement.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
                                         </div>
-                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const url = await handleFileUpload(file);
-                                                    if (url) setEditingAchievement(prev => ({ ...prev!, image: url }));
-                                                }
-                                            }} />
-                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={achievementImageUpload.openUploadWidget}
+                                            className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 p-2 rounded hover:bg-emerald-100 flex-shrink-0 flex items-center gap-2"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSaveAchievement} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
@@ -607,64 +603,34 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                             />
                                             {editingPortfolioCategory.image && <img src={editingPortfolioCategory.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
                                         </div>
-                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} mt-6`}>
-                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const url = await handleFileUpload(file);
-                                                    if (url) setEditingPortfolioCategory(prev => ({ ...prev!, image: url }));
-                                                }
-                                            }} />
-                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={portfolioImageUpload.openUploadWidget}
+                                            className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 p-2 rounded hover:bg-emerald-100 flex-shrink-0 flex items-center gap-2 mt-6"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Thư viện ảnh chi tiết</label>
-                                        <div className="grid grid-cols-4 gap-2 mb-2">
-                                            {editingPortfolioCategory.images?.map((img, idx) => (
-                                                <div key={idx} className="relative group">
-                                                    <img src={img} alt="" className="w-full h-24 object-cover rounded border" />
-                                                    <button
-                                                        onClick={() => {
-                                                            const newImages = [...(editingPortfolioCategory.images || [])];
-                                                            newImages.splice(idx, 1);
-                                                            setEditingPortfolioCategory({ ...editingPortfolioCategory, images: newImages });
-                                                        }}
-                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    >
-                                                        <Trash size={12} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <label className={`flex flex-col items-center justify-center h-24 border-2 border-dashed border-gray-300 rounded hover:border-emerald-500 cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
-                                                {isUploading ? <span className="text-xs">...</span> : <Plus size={24} className="text-gray-400" />}
-                                                <span className="text-xs text-gray-500 mt-1">Thêm ảnh</span>
-                                                <input
-                                                    type="file"
-                                                    className="hidden"
-                                                    accept="image/*"
-                                                    multiple
-                                                    disabled={isUploading}
-                                                    onChange={async (e) => {
-                                                        if (e.target.files) {
-                                                            setIsUploading(true);
-                                                            const newUrls: string[] = [];
-                                                            for (let i = 0; i < e.target.files.length; i++) {
-                                                                const file = e.target.files[i];
-                                                                const url = await handleFileUpload(file);
-                                                                if (url) newUrls.push(url);
-                                                            }
-                                                            setEditingPortfolioCategory(prev => ({
-                                                                ...prev!,
-                                                                images: [...(prev?.images || []), ...newUrls]
-                                                            }));
-                                                            setIsUploading(false);
-                                                        }
-                                                    }}
-                                                />
-                                            </label>
-                                        </div>
+                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Thư viện ảnh chi tiết (URLs phân cách bằng dấu phẩy)</label>
+                                        <textarea
+                                            className="w-full border p-2 rounded"
+                                            placeholder="URL1, URL2, URL3..."
+                                            rows={3}
+                                            value={editingPortfolioCategory.images?.join(', ') || ''}
+                                            onChange={e => setEditingPortfolioCategory({ 
+                                                ...editingPortfolioCategory, 
+                                                images: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
+                                            })}
+                                        />
+                                        {editingPortfolioCategory.images && editingPortfolioCategory.images.length > 0 && (
+                                            <div className="grid grid-cols-4 gap-2 mt-2">
+                                                {editingPortfolioCategory.images.map((img, idx) => (
+                                                    <img key={idx} src={img} alt="" className="w-full h-24 object-cover rounded border" />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSavePortfolioCategory} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
