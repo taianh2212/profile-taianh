@@ -7,7 +7,7 @@ interface CloudinaryUploadOptions {
 
 // Cloudinary configuration
 const CLOUD_NAME = 'dx5szhyyt';
-const UPLOAD_PRESET = 'profile_uploads'; // You need to create this in Cloudinary dashboard
+const UPLOAD_PRESET = 'profile'; // Unsigned upload preset from Cloudinary
 
 export function useCloudinaryUpload({ onSuccess, onError }: CloudinaryUploadOptions = {}) {
   const openUploadWidget = useCallback(() => {
