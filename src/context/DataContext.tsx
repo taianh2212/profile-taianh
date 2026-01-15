@@ -89,24 +89,37 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                console.log('Fetching data from API...');
                 // Use relative URL for both dev (via proxy) and prod (Vercel)
                 const res = await fetch('/api/data');
                 if (res.ok) {
                     const dbData = await res.json();
-                    if (dbData) {
-                        // Merge/Override initialData with DB data
-                        setData(prev => ({
-                            ...prev,
-                            ...dbData,
-                        }));
+                    console.log('Data fetched from DB:', dbData);
+                    if (dbData && dbData.profile) {
+                        // Use DB data completely, don't merge with initialData
+                        setData(dbData);
+                    } else {
+                        console.log('No data in DB, using initialData');
+                        // First time, save initialData to DB
+                        const saveRes = await fetch('/api/data', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(initialData)
+                        });
+                        if (saveRes.ok) {
+                            console.log('Initial data saved to DB');
+                        }
                     }
+                } else {
+                    console.error('API fetch failed with status:', res.status);
                 }
             } catch (error) {
                 console.error('Failed to fetch data from backend, using local/initial data:', error);
-                // Fallback to localStorage if API fails?
+                // Fallback to localStorage if API fails
                 const saved = localStorage.getItem('appData');
                 if (saved) {
-                    setData(prev => ({ ...prev, ...JSON.parse(saved) }));
+                    console.log('Using localStorage data');
+                    setData(JSON.parse(saved));
                 }
             }
         };
@@ -115,17 +128,27 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     // Save to Backend on Change (Debounced)
     useEffect(() => {
+        // Skip saving on initial mount
+        const isInitialMount = data === initialData;
+        if (isInitialMount) return;
+
         // Save to localStorage as backup immediately
         localStorage.setItem('appData', JSON.stringify(data));
 
         const timer = setTimeout(async () => {
             setIsSyncing(true);
             try {
-                await fetch('/api/data', {
+                console.log('Saving data to API...', data);
+                const res = await fetch('/api/data', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
+                if (res.ok) {
+                    console.log('Data saved successfully to DB');
+                } else {
+                    console.error('Failed to save, status:', res.status);
+                }
             } catch (err) {
                 console.error('Failed to save to backend:', err);
             } finally {
