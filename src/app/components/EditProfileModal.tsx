@@ -26,31 +26,45 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         if (file) {
             try {
                 setIsUploading(true);
-                
-                // Compress image before uploading
-                const compressedBlob = await compressImage(file, 1, 1920); // Max 1MB, 1920px
-                const compressedFile = blobToFile(compressedBlob, file.name);
-                
-                const formData = new FormData();
-                formData.append('file', compressedFile);
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
 
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(`Upload failed (${res.status}): ${errorText.substring(0, 100)}`);
-                }
+                // Compress image
+                const compressedBlob = await compressImage(file, 1, 1920);
 
-                const data = await res.json();
-                if (data.url) {
-                    setFormData(prev => ({ ...prev, avatarUrl: data.url }));
-                }
+                // Convert blob to base64
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64data = reader.result as string;
+
+                    try {
+                        const res = await fetch('/api/upload', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ file: base64data })
+                        });
+
+                        if (!res.ok) {
+                            const errorData = await res.json();
+                            throw new Error(`Upload failed (${res.status}): ${errorData.error || 'Unknown error'}`);
+                        }
+
+                        const data = await res.json();
+                        if (data.url) {
+                            setFormData(prev => ({ ...prev, avatarUrl: data.url }));
+                        }
+                    } catch (uploadError: any) {
+                        console.error('Upload failed:', uploadError);
+                        alert(`Lỗi upload: ${uploadError.message}`);
+                    } finally {
+                        setIsUploading(false);
+                    }
+                };
+                reader.readAsDataURL(compressedBlob);
+
             } catch (error: any) {
-                console.error('Upload failed:', error);
-                alert(`Lỗi upload: ${error.message}`);
-            } finally {
+                console.error('Compression failed:', error);
+                alert(`Lỗi xử lý ảnh: ${error.message}`);
                 setIsUploading(false);
             }
         }
@@ -117,7 +131,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                 // Compress image before uploading
                                                 const compressedBlob = await compressImage(file, 1, 1920);
                                                 const compressedFile = blobToFile(compressedBlob, file.name);
-                                                
+
                                                 const formDataUpload = new FormData();
                                                 formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
@@ -164,7 +178,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                 // Compress image before uploading (smaller size for icons)
                                                 const compressedBlob = await compressImage(file, 0.5, 512);
                                                 const compressedFile = blobToFile(compressedBlob, file.name);
-                                                
+
                                                 const formDataUpload = new FormData();
                                                 formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
@@ -175,8 +189,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                         customIcons: { ...prev.customIcons, se: data.url }
                                                     }));
                                                 }
-                                            } catch (err) { 
-                                                console.error(err); 
+                                            } catch (err) {
+                                                console.error(err);
                                                 alert('Lỗi upload icon');
                                             } finally {
                                                 setIsUploading(false);
@@ -207,7 +221,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                 // Compress image before uploading (smaller size for icons)
                                                 const compressedBlob = await compressImage(file, 0.5, 512);
                                                 const compressedFile = blobToFile(compressedBlob, file.name);
-                                                
+
                                                 const formDataUpload = new FormData();
                                                 formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
@@ -218,8 +232,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                         customIcons: { ...prev.customIcons, photographer: data.url }
                                                     }));
                                                 }
-                                            } catch (err) { 
-                                                console.error(err); 
+                                            } catch (err) {
+                                                console.error(err);
                                                 alert('Lỗi upload icon');
                                             } finally {
                                                 setIsUploading(false);

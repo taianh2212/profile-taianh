@@ -50,46 +50,46 @@ app.use(async (req, res, next) => {
 });
 
 // Upload Route
-// Upload Route
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-    // Re-configure Cloudinary per request to ensure env vars are picked up in serverless environment
-    // Also trim whitespace to prevent 'Invalid Signature' errors from copy-paste
-    cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
-        api_key: process.env.CLOUDINARY_API_KEY?.trim(),
-        api_secret: process.env.CLOUDINARY_API_SECRET?.trim()
-    });
-
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-
-    console.log('Uploading file to Cloudinary...');
-
+// Upload Route - REWRITTEN for Base64/JSON input
+app.post('/api/upload', async (req, res) => {
     try {
-        const result = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { folder: 'profile_uploads' },
-                (error, result) => {
-                    if (error) {
-                        console.error('Cloudinary Stream Error:', error);
-                        reject(error);
-                    } else {
-                        resolve(result);
-                    }
-                }
-            );
-            streamifier.createReadStream(req.file.buffer).pipe(stream);
+        // 1. Configure Cloudinary
+        const cloudConfig = {
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+            api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+            api_secret: process.env.CLOUDINARY_API_SECRET?.trim()
+        };
+        cloudinary.config(cloudConfig);
+
+        // 2. Validate input
+        const fileStr = req.body.file;
+        if (!fileStr) {
+            console.error('No file data received in body');
+            return res.status(400).json({ error: 'No file data received' });
+        }
+
+        console.log('Uploading Base64 image to Cloudinary...');
+
+        // 3. Upload directly (Simple Method)
+        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+            folder: 'profile_uploads',
+            resource_type: 'auto',
         });
-        console.log('Upload success:', result.secure_url);
-        res.json({ url: result.secure_url });
+
+        console.log('Upload success:', uploadResponse.secure_url);
+        res.json({ url: uploadResponse.secure_url });
+
     } catch (err) {
         console.error('Cloudinary Upload catch:', err);
 
-        // Debug info to diagnose environment variable issues
+        // Debug info
         const debugInfo = {
+            message: err.message,
+            http_code: err.http_code,
             cloudNameExists: !!process.env.CLOUDINARY_CLOUD_NAME,
             apiKeyExists: !!process.env.CLOUDINARY_API_KEY,
             apiSecretExists: !!process.env.CLOUDINARY_API_SECRET,
-            envKeys: Object.keys(process.env).filter(k => k.startsWith('CLOUDINARY'))
+            secretLength: process.env.CLOUDINARY_API_SECRET ? process.env.CLOUDINARY_API_SECRET.length : 0
         };
         console.error('Env Debug:', debugInfo);
 
@@ -99,6 +99,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         });
     }
 });
+
 
 // Routes
 
