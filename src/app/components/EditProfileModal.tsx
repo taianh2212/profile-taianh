@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { X, Upload } from 'lucide-react';
+import { X } from 'lucide-react';
 import { ProfileData } from '@/types/data';
-import { compressImage, blobToFile } from '@/utils/imageCompression';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -12,7 +11,6 @@ interface EditProfileModalProps {
 export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     const { data, updateProfile } = useData();
     const [formData, setFormData] = useState<ProfileData>(data.profile);
-    const [isUploading, setIsUploading] = useState(false);
 
     // Sync state with data when modal opens or data updates
     React.useEffect(() => {
@@ -20,55 +18,6 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             setFormData(data.profile);
         }
     }, [isOpen, data.profile]);
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            try {
-                setIsUploading(true);
-
-                // Compress image (smaller size for Vercel limit)
-                const compressedBlob = await compressImage(file, 0.3, 800);
-
-                // Convert blob to base64
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    const base64data = reader.result as string;
-
-                    try {
-                        const res = await fetch('/api/upload', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ file: base64data })
-                        });
-
-                        if (!res.ok) {
-                            const errorData = await res.json();
-                            throw new Error(`Upload failed (${res.status}): ${errorData.error || 'Unknown error'}`);
-                        }
-
-                        const data = await res.json();
-                        if (data.url) {
-                            setFormData(prev => ({ ...prev, avatarUrl: data.url }));
-                        }
-                    } catch (uploadError: any) {
-                        console.error('Upload failed:', uploadError);
-                        alert(`Lỗi upload: ${uploadError.message}`);
-                    } finally {
-                        setIsUploading(false);
-                    }
-                };
-                reader.readAsDataURL(compressedBlob);
-
-            } catch (error: any) {
-                console.error('Compression failed:', error);
-                alert(`Lỗi xử lý ảnh: ${error.message}`);
-                setIsUploading(false);
-            }
-        }
-    };
 
     if (!isOpen) return null;
 
@@ -103,10 +52,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
                                     )}
                                 </div>
-                                <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <Upload size={16} /> Tải ảnh
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
-                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.avatarUrl || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, avatarUrl: e.target.value }))}
+                                    placeholder="Nhập URL ảnh đại diện"
+                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                />
                             </div>
                         </div>
 
@@ -121,51 +73,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
                                     )}
                                 </div>
-                                <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <Upload size={16} /> Tải ảnh
-                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            try {
-                                                setIsUploading(true);
-                                                // Compress image (smaller size for Vercel limit)
-                                                const compressedBlob = await compressImage(file, 0.3, 800);
-
-                                                // Convert to Base64
-                                                const reader = new FileReader();
-                                                reader.onloadend = async () => {
-                                                    const base64data = reader.result as string;
-                                                    try {
-                                                        const res = await fetch('/api/upload', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ file: base64data })
-                                                        });
-
-                                                        if (!res.ok) {
-                                                            const errorData = await res.json();
-                                                            throw new Error(`Upload failed (${res.status}): ${errorData.error || 'Unknown error'}`);
-                                                        }
-                                                        const data = await res.json();
-                                                        if (data.url) {
-                                                            setFormData(prev => ({ ...prev, backgroundImageUrl: data.url }));
-                                                        }
-                                                    } catch (uploadError: any) {
-                                                        console.error(uploadError);
-                                                        alert(`Lỗi upload: ${uploadError.message}`);
-                                                    } finally {
-                                                        setIsUploading(false);
-                                                    }
-                                                };
-                                                reader.readAsDataURL(compressedBlob);
-                                            } catch (err: any) {
-                                                console.error(err);
-                                                alert(`Lỗi xử lý ảnh: ${err.message}`);
-                                                setIsUploading(false);
-                                            }
-                                        }
-                                    }} />
-                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.backgroundImageUrl || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, backgroundImageUrl: e.target.value }))}
+                                    placeholder="Nhập URL ảnh nền"
+                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                />
                             </div>
                         </div>
                     </div>
@@ -173,7 +87,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     {/* Custom Icons Section */}
                     <div className="grid md:grid-cols-2 gap-4 border-t pt-4 mb-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Icon Software Engineeer</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Icon Software Engineer</label>
                             <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 rounded-xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center overflow-hidden">
                                     {formData.customIcons?.se ? (
@@ -182,47 +96,16 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <span className="text-xs text-gray-400">Default</span>
                                     )}
                                 </div>
-                                <label className={`cursor-pointer bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center gap-2 ${isUploading ? 'opacity-50' : ''}`}>
-                                    <Upload size={14} /> Tải ảnh
-                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            try {
-                                                setIsUploading(true);
-                                                // Compress image (smaller for icons)
-                                                const compressedBlob = await compressImage(file, 0.2, 400);
-
-                                                const reader = new FileReader();
-                                                reader.onloadend = async () => {
-                                                    const base64data = reader.result as string;
-                                                    try {
-                                                        const res = await fetch('/api/upload', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ file: base64data })
-                                                        });
-                                                        const data = await res.json();
-                                                        if (data.url) {
-                                                            setFormData(prev => ({
-                                                                ...prev,
-                                                                customIcons: { ...prev.customIcons, se: data.url }
-                                                            }));
-                                                        }
-                                                    } catch (err: any) {
-                                                        console.error(err);
-                                                        alert('Lỗi upload icon');
-                                                    } finally {
-                                                        setIsUploading(false);
-                                                    }
-                                                };
-                                                reader.readAsDataURL(compressedBlob);
-                                            } catch (err: any) {
-                                                console.error(err);
-                                                setIsUploading(false);
-                                            }
-                                        }
-                                    }} />
-                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.customIcons?.se || ''}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        customIcons: { ...prev.customIcons, se: e.target.value }
+                                    }))}
+                                    placeholder="Nhập URL icon SE"
+                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                />
                             </div>
                         </div>
 
@@ -236,47 +119,16 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <span className="text-xs text-gray-400">Default</span>
                                     )}
                                 </div>
-                                <label className={`cursor-pointer bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center gap-2 ${isUploading ? 'opacity-50' : ''}`}>
-                                    <Upload size={14} /> Tải ảnh
-                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            try {
-                                                setIsUploading(true);
-                                                // Compress image (smaller size for Vercel limit)
-                                                const compressedBlob = await compressImage(file, 0.2, 400);
-
-                                                const reader = new FileReader();
-                                                reader.onloadend = async () => {
-                                                    const base64data = reader.result as string;
-                                                    try {
-                                                        const res = await fetch('/api/upload', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ file: base64data })
-                                                        });
-                                                        const data = await res.json();
-                                                        if (data.url) {
-                                                            setFormData(prev => ({
-                                                                ...prev,
-                                                                customIcons: { ...prev.customIcons, photographer: data.url }
-                                                            }));
-                                                        }
-                                                    } catch (err: any) {
-                                                        console.error(err);
-                                                        alert('Lỗi upload icon');
-                                                    } finally {
-                                                        setIsUploading(false);
-                                                    }
-                                                };
-                                                reader.readAsDataURL(compressedBlob);
-                                            } catch (err: any) {
-                                                console.error(err);
-                                                setIsUploading(false);
-                                            }
-                                        }
-                                    }} />
-                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.customIcons?.photographer || ''}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        customIcons: { ...prev.customIcons, photographer: e.target.value }
+                                    }))}
+                                    placeholder="Nhập URL icon Photographer"
+                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                />
                             </div>
                         </div>
                     </div>
