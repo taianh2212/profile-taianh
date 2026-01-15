@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
 import { X, Upload } from 'lucide-react';
 import { ProfileData } from '@/types/data';
+import { compressImage, blobToFile } from '@/utils/imageCompression';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -25,8 +26,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         if (file) {
             try {
                 setIsUploading(true);
+                
+                // Compress image before uploading
+                const compressedBlob = await compressImage(file, 1, 1920); // Max 1MB, 1920px
+                const compressedFile = blobToFile(compressedBlob, file.name);
+                
                 const formData = new FormData();
-                formData.append('file', file);
+                formData.append('file', compressedFile);
                 const res = await fetch('/api/upload', {
                     method: 'POST',
                     body: formData
@@ -107,9 +113,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         const file = e.target.files?.[0];
                                         if (file) {
                                             setIsUploading(true);
-                                            const formDataUpload = new FormData();
-                                            formDataUpload.append('file', file);
                                             try {
+                                                // Compress image before uploading
+                                                const compressedBlob = await compressImage(file, 1, 1920);
+                                                const compressedFile = blobToFile(compressedBlob, file.name);
+                                                
+                                                const formDataUpload = new FormData();
+                                                formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
                                                 if (!res.ok) {
                                                     const errorText = await res.text();
@@ -122,8 +132,9 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                             } catch (err: any) {
                                                 console.error(err);
                                                 alert(`Lỗi upload: ${err.message}`);
+                                            } finally {
+                                                setIsUploading(false);
                                             }
-                                            setIsUploading(false);
                                         }
                                     }} />
                                 </label>
@@ -149,9 +160,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         const file = e.target.files?.[0];
                                         if (file) {
                                             setIsUploading(true);
-                                            const formDataUpload = new FormData();
-                                            formDataUpload.append('file', file);
                                             try {
+                                                // Compress image before uploading (smaller size for icons)
+                                                const compressedBlob = await compressImage(file, 0.5, 512);
+                                                const compressedFile = blobToFile(compressedBlob, file.name);
+                                                
+                                                const formDataUpload = new FormData();
+                                                formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
                                                 const data = await res.json();
                                                 if (data.url) {
@@ -160,8 +175,12 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                         customIcons: { ...prev.customIcons, se: data.url }
                                                     }));
                                                 }
-                                            } catch (err) { console.error(err); }
-                                            setIsUploading(false);
+                                            } catch (err) { 
+                                                console.error(err); 
+                                                alert('Lỗi upload icon');
+                                            } finally {
+                                                setIsUploading(false);
+                                            }
                                         }
                                     }} />
                                 </label>
@@ -184,9 +203,13 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         const file = e.target.files?.[0];
                                         if (file) {
                                             setIsUploading(true);
-                                            const formDataUpload = new FormData();
-                                            formDataUpload.append('file', file);
                                             try {
+                                                // Compress image before uploading (smaller size for icons)
+                                                const compressedBlob = await compressImage(file, 0.5, 512);
+                                                const compressedFile = blobToFile(compressedBlob, file.name);
+                                                
+                                                const formDataUpload = new FormData();
+                                                formDataUpload.append('file', compressedFile);
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
                                                 const data = await res.json();
                                                 if (data.url) {
@@ -195,8 +218,12 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                                         customIcons: { ...prev.customIcons, photographer: data.url }
                                                     }));
                                                 }
-                                            } catch (err) { console.error(err); }
-                                            setIsUploading(false);
+                                            } catch (err) { 
+                                                console.error(err); 
+                                                alert('Lỗi upload icon');
+                                            } finally {
+                                                setIsUploading(false);
+                                            }
                                         }
                                     }} />
                                 </label>
