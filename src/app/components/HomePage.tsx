@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Code, Camera, Sparkles, Github, Facebook, Instagram, Phone, Lock, Edit } from 'lucide-react';
+import { Code, Camera, Sparkles, Lock, Edit } from 'lucide-react';
 import { useData } from '@/context/DataContext';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
@@ -82,8 +82,8 @@ export function HomePage({ onSelectSkill }: HomePageProps) {
             {/* Name and Title */}
             <div className="text-left">
               <motion.h1
-                className="text-4xl md:text-6xl lg:text-7xl mb-2"
-                style={{ fontFamily: 'var(--font-display)' }}
+                className="text-5xl md:text-7xl lg:text-8xl mb-2"
+                style={{ fontFamily: 'var(--font-signature)' }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
@@ -281,35 +281,51 @@ export function HomePage({ onSelectSkill }: HomePageProps) {
         >
           <motion.a
             href="#"
-            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all"
+            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all flex items-center justify-center"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Github size={24} className="text-emerald-700" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg"
+              alt="Github"
+              className="w-6 h-6 object-contain"
+            />
           </motion.a>
           <motion.a
             href="#"
-            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all"
+            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all flex items-center justify-center"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Facebook size={24} className="text-emerald-700" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
+              alt="Facebook"
+              className="w-6 h-6 object-contain"
+            />
           </motion.a>
           <motion.a
             href="#"
-            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all"
+            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all flex items-center justify-center"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Instagram size={24} className="text-emerald-700" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg"
+              alt="Instagram"
+              className="w-6 h-6 object-contain"
+            />
           </motion.a>
           <motion.a
             href="#"
-            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all"
+            className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all flex items-center justify-center"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Phone size={24} className="text-emerald-700" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
+              alt="Zalo"
+              className="w-6 h-6 object-contain"
+            />
           </motion.a>
         </motion.div>
       </div>
