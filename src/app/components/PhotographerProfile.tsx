@@ -60,27 +60,42 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
               </button>
             </div>
 
+            {/* Masonry Gallery Layout */}
             <div 
-              className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10"
+              className="w-full max-w-6xl mx-auto pb-10"
               style={{
-                gridAutoFlow: 'dense', // Tự động di chuyển ảnh để lấp đầy khoảng trống
-                gridAutoRows: 'auto'
+                columnCount: 3,
+                columnGap: '16px',
               }}
             >
-              {/* Cover Image */}
-              {selectedProject.image && (
-                <div className="rounded-lg overflow-hidden">
-                  <ImageWithFallback src={selectedProject.image} alt="Cover" className="w-full h-auto object-cover" />
-                </div>
-              )}
-              {/* Additional Images */}
-              {selectedProject.images?.map((img, idx) => (
-                <div key={idx} className="rounded-lg overflow-hidden">
-                  <ImageWithFallback src={img} alt={`Gallery ${idx}`} className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
-                </div>
-              ))}
+              <style>{`
+                @media (max-width: 1024px) {
+                  .masonry-container {
+                    column-count: 2 !important;
+                  }
+                }
+                @media (max-width: 768px) {
+                  .masonry-container {
+                    column-count: 1 !important;
+                  }
+                }
+              `}</style>
+              <div className="masonry-container" style={{ columnCount: 3, columnGap: '16px' }}>
+                {/* Cover Image */}
+                {selectedProject.image && (
+                  <div className="rounded-lg overflow-hidden mb-4 break-inside-avoid">
+                    <ImageWithFallback src={selectedProject.image} alt="Cover" className="w-full h-auto object-cover" />
+                  </div>
+                )}
+                {/* Additional Images */}
+                {selectedProject.images?.map((img, idx) => (
+                  <div key={idx} className="rounded-lg overflow-hidden mb-4 break-inside-avoid">
+                    <ImageWithFallback src={img} alt={`Gallery ${idx}`} className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
+                  </div>
+                ))}
+              </div>
               {(!selectedProject.images || selectedProject.images.length === 0) && !selectedProject.image && (
-                <p className="text-white col-span-full text-center py-20">Chưa có hình ảnh nào trong bộ sưu tập này.</p>
+                <p className="text-white text-center py-20">Chưa có hình ảnh nào trong bộ sưu tập này.</p>
               )}
             </div>
           </motion.div>
