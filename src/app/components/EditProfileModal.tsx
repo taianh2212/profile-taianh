@@ -31,13 +31,19 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                     method: 'POST',
                     body: formData
                 });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`Upload failed (${res.status}): ${errorText.substring(0, 100)}`);
+                }
+
                 const data = await res.json();
                 if (data.url) {
                     setFormData(prev => ({ ...prev, avatarUrl: data.url }));
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Upload failed:', error);
-                alert('Upload thất bại');
+                alert(`Lỗi upload: ${error.message}`);
             } finally {
                 setIsUploading(false);
             }
@@ -105,11 +111,18 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                             formDataUpload.append('file', file);
                                             try {
                                                 const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
+                                                if (!res.ok) {
+                                                    const errorText = await res.text();
+                                                    throw new Error(`Upload failed (${res.status}): ${errorText.substring(0, 100)}`);
+                                                }
                                                 const data = await res.json();
                                                 if (data.url) {
                                                     setFormData(prev => ({ ...prev, backgroundImageUrl: data.url }));
                                                 }
-                                            } catch (err) { console.error(err); }
+                                            } catch (err: any) {
+                                                console.error(err);
+                                                alert(`Lỗi upload: ${err.message}`);
+                                            }
                                             setIsUploading(false);
                                         }
                                     }} />
