@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { X } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import { ProfileData } from '@/types/data';
+import { useCloudinaryUpload } from '@/hooks/useCloudinaryUpload';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -18,6 +19,33 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             setFormData(data.profile);
         }
     }, [isOpen, data.profile]);
+
+    // Cloudinary upload hooks for different images
+    const avatarUpload = useCloudinaryUpload({
+        onSuccess: (url) => setFormData(prev => ({ ...prev, avatarUrl: url })),
+        onError: (error) => alert(`Lỗi upload avatar: ${error.message}`)
+    });
+
+    const backgroundUpload = useCloudinaryUpload({
+        onSuccess: (url) => setFormData(prev => ({ ...prev, backgroundImageUrl: url })),
+        onError: (error) => alert(`Lỗi upload background: ${error.message}`)
+    });
+
+    const seIconUpload = useCloudinaryUpload({
+        onSuccess: (url) => setFormData(prev => ({
+            ...prev,
+            customIcons: { ...prev.customIcons, se: url }
+        })),
+        onError: (error) => alert(`Lỗi upload icon SE: ${error.message}`)
+    });
+
+    const photographerIconUpload = useCloudinaryUpload({
+        onSuccess: (url) => setFormData(prev => ({
+            ...prev,
+            customIcons: { ...prev.customIcons, photographer: url }
+        })),
+        onError: (error) => alert(`Lỗi upload icon Photographer: ${error.message}`)
+    });
 
     if (!isOpen) return null;
 
@@ -52,13 +80,22 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
                                     )}
                                 </div>
-                                <input
-                                    type="text"
-                                    value={formData.avatarUrl || ''}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, avatarUrl: e.target.value }))}
-                                    placeholder="Nhập URL ảnh đại diện"
-                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
-                                />
+                                <div className="flex-1 space-y-2">
+                                    <button
+                                        type="button"
+                                        onClick={avatarUpload.openUploadWidget}
+                                        className="w-full bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center justify-center gap-2"
+                                    >
+                                        <Upload size={16} /> Tải ảnh lên
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={formData.avatarUrl || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, avatarUrl: e.target.value }))}
+                                        placeholder="Hoặc nhập URL ảnh"
+                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -73,13 +110,22 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
                                     )}
                                 </div>
-                                <input
-                                    type="text"
-                                    value={formData.backgroundImageUrl || ''}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, backgroundImageUrl: e.target.value }))}
-                                    placeholder="Nhập URL ảnh nền"
-                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
-                                />
+                                <div className="flex-1 space-y-2">
+                                    <button
+                                        type="button"
+                                        onClick={backgroundUpload.openUploadWidget}
+                                        className="w-full bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center justify-center gap-2"
+                                    >
+                                        <Upload size={16} /> Tải ảnh lên
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={formData.backgroundImageUrl || ''}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, backgroundImageUrl: e.target.value }))}
+                                        placeholder="Hoặc nhập URL ảnh"
+                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -96,16 +142,25 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <span className="text-xs text-gray-400">Default</span>
                                     )}
                                 </div>
-                                <input
-                                    type="text"
-                                    value={formData.customIcons?.se || ''}
-                                    onChange={(e) => setFormData(prev => ({
-                                        ...prev,
-                                        customIcons: { ...prev.customIcons, se: e.target.value }
-                                    }))}
-                                    placeholder="Nhập URL icon SE"
-                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
-                                />
+                                <div className="flex-1 space-y-2">
+                                    <button
+                                        type="button"
+                                        onClick={seIconUpload.openUploadWidget}
+                                        className="w-full bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center justify-center gap-2"
+                                    >
+                                        <Upload size={14} /> Tải ảnh
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={formData.customIcons?.se || ''}
+                                        onChange={(e) => setFormData(prev => ({
+                                            ...prev,
+                                            customIcons: { ...prev.customIcons, se: e.target.value }
+                                        }))}
+                                        placeholder="Hoặc nhập URL"
+                                        className="w-full px-3 py-1.5 border rounded text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -119,16 +174,25 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                                         <span className="text-xs text-gray-400">Default</span>
                                     )}
                                 </div>
-                                <input
-                                    type="text"
-                                    value={formData.customIcons?.photographer || ''}
-                                    onChange={(e) => setFormData(prev => ({
-                                        ...prev,
-                                        customIcons: { ...prev.customIcons, photographer: e.target.value }
-                                    }))}
-                                    placeholder="Nhập URL icon Photographer"
-                                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
-                                />
+                                <div className="flex-1 space-y-2">
+                                    <button
+                                        type="button"
+                                        onClick={photographerIconUpload.openUploadWidget}
+                                        className="w-full bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center justify-center gap-2"
+                                    >
+                                        <Upload size={14} /> Tải ảnh
+                                    </button>
+                                    <input
+                                        type="text"
+                                        value={formData.customIcons?.photographer || ''}
+                                        onChange={(e) => setFormData(prev => ({
+                                            ...prev,
+                                            customIcons: { ...prev.customIcons, photographer: e.target.value }
+                                        }))}
+                                        placeholder="Hoặc nhập URL"
+                                        className="w-full px-3 py-1.5 border rounded text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
