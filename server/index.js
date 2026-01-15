@@ -67,7 +67,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         res.json({ url: result.secure_url });
     } catch (err) {
         console.error('Cloudinary Upload Error:', err);
-        res.status(500).json({ error: 'Upload failed' });
+        res.status(500).json({ error: err.message || 'Unknown upload error' });
     }
 });
 

@@ -7,9 +7,22 @@ const ProfileSchema = new mongoose.Schema({
         welcomeMessage: String,
         yearsOfExperience: Number,
         projectsCount: Number,
-        clientsCount: Number,
-        technologiesCount: Number,
-        avatarUrl: String
+        customIcons: {
+            se: String,
+            photographer: String
+        },
+        seStats: {
+            years: Number,
+            projects: Number,
+            clients: Number,
+            technologies: Number
+        },
+        photoStats: {
+            years: Number,
+            projects: Number,
+            clients: Number,
+            awards: Number
+        }
     },
     skills: [{
         id: String,
@@ -56,7 +69,8 @@ const ProfileSchema = new mongoose.Schema({
         id: String,
         category: String,
         gradient: String,
-        image: String
+        image: String,
+        images: [String] // Array of image URLs
     }]
 }, { timestamps: true });
 

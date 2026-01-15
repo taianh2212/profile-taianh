@@ -11,10 +11,14 @@ interface EditProfileModalProps {
 export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     const { data, updateProfile } = useData();
     const [formData, setFormData] = useState<ProfileData>(data.profile);
-
-    if (!isOpen) return null;
-
     const [isUploading, setIsUploading] = useState(false);
+
+    // Sync state with data when modal opens or data updates
+    React.useEffect(() => {
+        if (isOpen) {
+            setFormData(data.profile);
+        }
+    }, [isOpen, data.profile]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -39,6 +43,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             }
         }
     };
+
+    if (!isOpen) return null;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -76,6 +82,79 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                         </div>
                     </div>
 
+                    {/* Custom Icons Section */}
+                    <div className="grid md:grid-cols-2 gap-4 border-t pt-4 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Icon Software Engineeer</label>
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center overflow-hidden">
+                                    {formData.customIcons?.se ? (
+                                        <img src={formData.customIcons.se} alt="SE Icon" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-xs text-gray-400">Default</span>
+                                    )}
+                                </div>
+                                <label className={`cursor-pointer bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center gap-2 ${isUploading ? 'opacity-50' : ''}`}>
+                                    <Upload size={14} /> Tải ảnh
+                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setIsUploading(true);
+                                            const formDataUpload = new FormData();
+                                            formDataUpload.append('file', file);
+                                            try {
+                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
+                                                const data = await res.json();
+                                                if (data.url) {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        customIcons: { ...prev.customIcons, se: data.url }
+                                                    }));
+                                                }
+                                            } catch (err) { console.error(err); }
+                                            setIsUploading(false);
+                                        }
+                                    }} />
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Icon Photographer</label>
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center overflow-hidden">
+                                    {formData.customIcons?.photographer ? (
+                                        <img src={formData.customIcons.photographer} alt="Photo Icon" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-xs text-gray-400">Default</span>
+                                    )}
+                                </div>
+                                <label className={`cursor-pointer bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 flex items-center gap-2 ${isUploading ? 'opacity-50' : ''}`}>
+                                    <Upload size={14} /> Tải ảnh
+                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setIsUploading(true);
+                                            const formDataUpload = new FormData();
+                                            formDataUpload.append('file', file);
+                                            try {
+                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
+                                                const data = await res.json();
+                                                if (data.url) {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        customIcons: { ...prev.customIcons, photographer: data.url }
+                                                    }));
+                                                }
+                                            } catch (err) { console.error(err); }
+                                            setIsUploading(false);
+                                        }
+                                    }} />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Tên</label>
@@ -107,18 +186,49 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Kinh Nghiệm (Năm)</label>
-                            <input type="number" value={formData.yearsOfExperience} onChange={(e) => setFormData({ ...formData, yearsOfExperience: Number(e.target.value) })} className="w-full border rounded p-2" />
+                    {/* SE Stats */}
+                    <div className="border-t pt-4">
+                        <h3 className="font-semibold text-emerald-800 mb-2">Chỉ số Software Engineer</h3>
+                        <div className="grid grid-cols-4 gap-2">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Năm KN</label>
+                                <input type="number" value={formData.seStats?.years || 0} onChange={(e) => setFormData({ ...formData, seStats: { ...formData.seStats!, years: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Dự Án</label>
+                                <input type="number" value={formData.seStats?.projects || 0} onChange={(e) => setFormData({ ...formData, seStats: { ...formData.seStats!, projects: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Khách Hàng</label>
+                                <input type="number" value={formData.seStats?.clients || 0} onChange={(e) => setFormData({ ...formData, seStats: { ...formData.seStats!, clients: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Công Nghệ</label>
+                                <input type="number" value={formData.seStats?.technologies || 0} onChange={(e) => setFormData({ ...formData, seStats: { ...formData.seStats!, technologies: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Dự Án</label>
-                            <input type="number" value={formData.projectsCount} onChange={(e) => setFormData({ ...formData, projectsCount: Number(e.target.value) })} className="w-full border rounded p-2" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Khách Hàng</label>
-                            <input type="number" value={formData.clientsCount} onChange={(e) => setFormData({ ...formData, clientsCount: Number(e.target.value) })} className="w-full border rounded p-2" />
+                    </div>
+
+                    {/* Photo Stats */}
+                    <div className="border-t pt-4">
+                        <h3 className="font-semibold text-teal-800 mb-2">Chỉ số Photographer</h3>
+                        <div className="grid grid-cols-4 gap-2">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Năm KN</label>
+                                <input type="number" value={formData.photoStats?.years || 0} onChange={(e) => setFormData({ ...formData, photoStats: { ...formData.photoStats!, years: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Dự Án</label>
+                                <input type="number" value={formData.photoStats?.projects || 0} onChange={(e) => setFormData({ ...formData, photoStats: { ...formData.photoStats!, projects: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Khách Hàng</label>
+                                <input type="number" value={formData.photoStats?.clients || 0} onChange={(e) => setFormData({ ...formData, photoStats: { ...formData.photoStats!, clients: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">Giải Thưởng</label>
+                                <input type="number" value={formData.photoStats?.awards || 0} onChange={(e) => setFormData({ ...formData, photoStats: { ...formData.photoStats!, awards: Number(e.target.value) } })} className="w-full border rounded p-2" />
+                            </div>
                         </div>
                     </div>
 

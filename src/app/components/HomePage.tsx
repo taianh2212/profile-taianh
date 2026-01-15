@@ -160,9 +160,13 @@ export function HomePage({ onSelectSkill }: HomePageProps) {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="flex items-center justify-center w-full h-full bg-emerald-50 text-emerald-600">
-                  <Code size={48} strokeWidth={1.5} />
-                </div>
+                {data.profile.customIcons?.se ? (
+                  <img src={data.profile.customIcons.se} alt="Software Engineer" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-emerald-50 text-emerald-600">
+                    <Code size={48} strokeWidth={1.5} />
+                  </div>
+                )}
               </motion.div>
 
               <h2
@@ -230,9 +234,13 @@ export function HomePage({ onSelectSkill }: HomePageProps) {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="flex items-center justify-center w-full h-full bg-teal-50 text-teal-600">
-                  <Camera size={48} strokeWidth={1.5} />
-                </div>
+                {data.profile.customIcons?.photographer ? (
+                  <img src={data.profile.customIcons.photographer} alt="Photographer" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-teal-50 text-teal-600">
+                    <Camera size={48} strokeWidth={1.5} />
+                  </div>
+                )}
               </motion.div>
 
               <h2

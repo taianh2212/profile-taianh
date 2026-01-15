@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Camera, Award, Eye, Users, Heart, Aperture, Star, TrendingUp, ChevronDown, ChevronUp, Edit } from 'lucide-react';
+import { ArrowLeft, Camera, Award, Eye, Users, Heart, Aperture, Star, TrendingUp, ChevronDown, ChevronUp, Edit, X } from 'lucide-react';
 import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
 import { FallingIcons } from '@/app/components/FallingIcons';
 import { useData } from '@/context/DataContext';
 import { useAuth } from '@/context/AuthContext';
 import { ManageContentModal } from './ManageContentModal';
+import { PortfolioCategory } from '@/types/data';
 
 // Icon mapping for dynamic services
 const iconMap: Record<string, any> = {
@@ -21,6 +22,7 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
   const { data } = useData();
   const { isAuthenticated } = useAuth();
   const [isManageOpen, setIsManageOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<PortfolioCategory | null>(null);
 
   // Filter achievements that look like photographer achievements (have image/color)
   const displayAchievements = data.achievements.filter(a => a.image || a.color);
@@ -29,20 +31,57 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
   // For now we use dynamic data. If empty, it will be empty.
 
   const stats = [
-    { number: '5+', label: 'Năm Kinh Nghiệm', icon: Star },
-    { number: '500+', label: 'Dự Án Hoàn Thành', icon: Camera },
-    { number: '50+', label: 'Giải Thưởng', icon: Award },
-    { number: '1000+', label: 'Khách Hàng', icon: Users },
+    { number: `${data.profile.photoStats?.years || 0}+`, label: 'Năm Kinh Nghiệm', icon: Star },
+    { number: `${data.profile.photoStats?.projects || 0}+`, label: 'Dự Án Hoàn Thành', icon: Camera },
+    { number: `${data.profile.photoStats?.awards || 0}+`, label: 'Giải Thưởng', icon: Award },
+    { number: `${data.profile.photoStats?.clients || 0}+`, label: 'Khách Hàng', icon: Users },
   ];
 
-  const displayedPortfolioItems = showAllProjects ? data.portfolioCategories : data.portfolioCategories.slice(0, 6);
+  const displayedPortfolioItems = showAllProjects ? data.portfolioCategories : data.portfolioCategories.slice(0, 5);
 
 
   return (
     <div className="min-h-screen py-8 md:py-12 px-4 relative overflow-hidden">
       <FallingIcons />
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      {/* Portfolio Detail Modal (Lightbox) */}
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 flex flex-col p-4 overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6 text-white sticky top-0 bg-black/50 backdrop-blur-md p-4 rounded-xl z-10 w-full max-w-6xl mx-auto">
+              <h2 className="text-2xl font-bold font-display">{selectedProject.category} Gallery</h2>
+              <button onClick={() => setSelectedProject(null)} className="p-2 hover:bg-white/20 rounded-full transition-colors">
+                <X size={32} />
+              </button>
+            </div>
+
+            <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+              {/* Cover Image */}
+              {selectedProject.image && (
+                <div className="rounded-lg overflow-hidden bg-gray-900">
+                  <ImageWithFallback src={selectedProject.image} alt="Cover" className="w-full h-full object-cover" />
+                </div>
+              )}
+              {/* Additional Images */}
+              {selectedProject.images?.map((img, idx) => (
+                <div key={idx} className="rounded-lg overflow-hidden bg-gray-900">
+                  <ImageWithFallback src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                </div>
+              ))}
+              {(!selectedProject.images || selectedProject.images.length === 0) && !selectedProject.image && (
+                <p className="text-white col-span-full text-center py-20">Chưa có hình ảnh nào trong bộ sưu tập này.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Back Button */}
         <motion.button
           onClick={onBack}
@@ -67,7 +106,7 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
             <ManageContentModal
               isOpen={isManageOpen}
               onClose={() => setIsManageOpen(false)}
-              defaultTab="services"
+              defaultTab="portfolio"
             />
           </div>
         )}
@@ -143,11 +182,104 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
           ))}
         </motion.section>
 
-        {/* Expertise Section */}
+        {/* Portfolio Gallery - UPDATED LAYOUT */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mb-12 md:mb-16"
+        >
+          <h2
+            className="text-3xl md:text-4xl mb-12 text-center text-emerald-900 font-bold"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            Portfolio
+          </h2>
+
+          <div className="flex flex-col gap-16 md:gap-24">
+            <AnimatePresence mode="popLayout">
+              {displayedPortfolioItems.map((item, index) => (
+                <motion.div
+                  key={item.category}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6 }}
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedProject(item)}
+                >
+                  <div className="w-full relative shadow-2xl rounded-sm overflow-hidden bg-gray-100">
+                    {/* Main Image - Full Width, No Crop */}
+                    {item.image ? (
+                      <ImageWithFallback
+                        src={item.image}
+                        alt={item.category}
+                        className="w-full h-auto block"
+                      />
+                    ) : (
+                      <div className={`w-full aspect-video bg-gradient-to-br ${item.gradient} flex items-center justify-center`}>
+                        <Aperture size={64} className="text-white/40" />
+                      </div>
+                    )}
+
+                    {/* Hover Hint */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                      <div className="bg-white/90 backdrop-blur text-emerald-900 px-4 py-2 rounded-full opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 font-medium flex items-center gap-2">
+                        <Eye size={16} /> Xem tất cả ảnh ({item.images?.length || 0})
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Title Below Image */}
+                  <div className="mt-4 text-center">
+                    <h3
+                      className="text-2xl md:text-3xl font-bold text-emerald-900 mb-1"
+                      style={{ fontFamily: 'var(--font-display)' }}
+                    >
+                      {item.category}
+                    </h3>
+                    <div className="h-1 w-12 bg-emerald-400 mx-auto rounded-full"></div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {/* Show More/Less Button */}
+          {data.portfolioCategories.length > 5 && (
+            <motion.div
+              className="flex justify-center mt-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <motion.button
+                onClick={() => setShowAllProjects(!showAllProjects)}
+                className="flex items-center gap-2 px-6 py-3 border-2 border-emerald-500 text-emerald-700 bg-transparent rounded-full font-semibold hover:bg-emerald-50 transition-all"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                {showAllProjects ? (
+                  <>
+                    <span>Thu gọn</span>
+                    <ChevronUp size={20} />
+                  </>
+                ) : (
+                  <>
+                    <span>Xem thêm dự án</span>
+                    <ChevronDown size={20} />
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
+          )}
+        </motion.section>
+
+        {/* Expertise Section (Moved down) */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
           className="mb-12 md:mb-16"
         >
           <h2
@@ -163,7 +295,8 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.1 * index }}
                   whileHover={{ scale: 1.03, y: -2 }}
                   className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-xl group"
@@ -197,115 +330,13 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
           </div>
         </motion.section>
 
-        {/* Portfolio Gallery */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-12 md:mb-16"
-        >
-          <h2
-            className="text-3xl md:text-4xl mb-8 text-emerald-900 font-bold"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            Portfolio
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <AnimatePresence mode="popLayout">
-              {displayedPortfolioItems.map((item, index) => (
-                <motion.div
-                  key={item.category}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, delay: showAllProjects ? 0 : 0.1 * index }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative aspect-square rounded-2xl overflow-hidden border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-2xl group cursor-pointer"
-                >
-                  {/* Gradient Background */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`}>
-                    <div className="absolute inset-0 bg-black/20"></div>
-                  </div>
-
-                  {/* Icon */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <Aperture size={64} className="text-white/40" strokeWidth={1.5} />
-                    </motion.div>
-                  </div>
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                      <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        whileHover={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <h4
-                          className="text-xl md:text-2xl mb-2 font-bold"
-                          style={{ fontFamily: 'var(--font-display)' }}
-                        >
-                          {item.category}
-                        </h4>
-                        <p
-                          className="text-sm text-white/80"
-                          style={{ fontFamily: 'var(--font-sans)' }}
-                        >
-                          View Collection
-                        </p>
-                      </motion.div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Show More/Less Button */}
-          <motion.div
-            className="flex justify-center mt-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <motion.button
-              onClick={() => setShowAllProjects(!showAllProjects)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-xl"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ fontFamily: 'var(--font-sans)' }}
-            >
-              {showAllProjects ? (
-                <>
-                  <span>Thu gọn</span>
-                  <ChevronUp size={20} />
-                </>
-              ) : (
-                <>
-                  <span>Xem thêm dự án</span>
-                  <ChevronDown size={20} />
-                </>
-              )}
-            </motion.button>
-          </motion.div>
-        </motion.section>
 
         {/* Achievements Section with Images */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
         >
           <h2
             className="text-3xl md:text-4xl mb-8 text-emerald-900 font-bold"
@@ -318,7 +349,7 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
               <motion.div
                 key={achievement.id}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 * index }}
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-xl group"
@@ -330,7 +361,6 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
                     alt={achievement.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${achievement.color || 'from-emerald-500 to-teal-500'} opacity-30 group-hover:opacity-40 transition-opacity`}></div>
                   <motion.div
                     className="absolute top-4 right-4 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg"
                     whileHover={{ rotate: 360 }}

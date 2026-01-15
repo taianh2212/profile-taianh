@@ -128,43 +128,56 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                     </button>
                 </div>
 
-                <div className="flex gap-4 mb-4 border-b">
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'projects' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('projects')}
-                    >
-                        Dự Án
-                    </button>
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'skills' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('skills')}
-                    >
-                        Kỹ Năng
-                    </button>
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'achievements' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('achievements')}
-                    >
-                        Thành Tựu
-                    </button>
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'experience' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('experience')}
-                    >
-                        Kinh Nghiệm
-                    </button>
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'services' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('services')}
-                    >
-                        Dịch Vụ
-                    </button>
-                    <button
-                        className={`pb-2 px-4 ${activeTab === 'portfolio' ? 'border-b-2 border-emerald-500 text-emerald-600 font-bold' : 'text-gray-500'}`}
-                        onClick={() => setActiveTab('portfolio')}
-                    >
-                        Danh Mục Ảnh
-                    </button>
+                <div className="flex flex-col gap-4 mb-6 border-b pb-4">
+                    {/* Software Engineer Section */}
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Software Engineer</h3>
+                        <div className="flex gap-2">
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'projects' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('projects')}
+                            >
+                                Dự Án
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'skills' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('skills')}
+                            >
+                                Kỹ Năng
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'experience' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('experience')}
+                            >
+                                Kinh Nghiệm
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Photographer Section */}
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Photographer</h3>
+                        <div className="flex gap-2">
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'portfolio' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('portfolio')}
+                            >
+                                Danh Mục Ảnh
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'achievements' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('achievements')}
+                            >
+                                Thành Tựu
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-lg text-sm transition-colors ${activeTab === 'services' ? 'bg-emerald-100 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                onClick={() => setActiveTab('services')}
+                            >
+                                Dịch Vụ
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
@@ -211,15 +224,18 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
                                     />
                                     <div className="flex gap-2 items-center">
-                                        <input
-                                            className="w-full border p-2 rounded"
-                                            placeholder="URL Hình ảnh"
-                                            value={editingProject.image || ''}
-                                            onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
-                                        />
-                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
-                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                        <div className="flex-1">
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="URL Hình ảnh"
+                                                value={editingProject.image || ''}
+                                                onChange={e => setEditingProject({ ...editingProject, image: e.target.value })}
+                                            />
+                                            {editingProject.image && <img src={editingProject.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
+                                        </div>
+                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
                                                     const url = await handleFileUpload(file);
@@ -303,15 +319,18 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         onChange={e => setEditingSkill({ ...editingSkill, yearsOfExperience: Number(e.target.value) })}
                                     />
                                     <div className="flex gap-2 items-center">
-                                        <input
-                                            className="w-full border p-2 rounded"
-                                            placeholder="URL Biểu tượng (tùy chọn)"
-                                            value={editingSkill.iconUrl || ''}
-                                            onChange={e => setEditingSkill({ ...editingSkill, iconUrl: e.target.value })}
-                                        />
-                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
-                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                        <div className="flex-1">
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="URL Biểu tượng (tùy chọn)"
+                                                value={editingSkill.iconUrl || ''}
+                                                onChange={e => setEditingSkill({ ...editingSkill, iconUrl: e.target.value })}
+                                            />
+                                            {editingSkill.iconUrl && <img src={editingSkill.iconUrl} alt="Preview" className="mt-2 h-10 w-10 rounded-full border bg-gray-50 object-contain" />}
+                                        </div>
+                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
                                                     const url = await handleFileUpload(file);
@@ -376,15 +395,18 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         onChange={e => setEditingAchievement({ ...editingAchievement, date: e.target.value })}
                                     />
                                     <div className="flex gap-2 items-center">
-                                        <input
-                                            className="w-full border p-2 rounded"
-                                            placeholder="URL Hình ảnh"
-                                            value={editingAchievement.image || ''}
-                                            onChange={e => setEditingAchievement({ ...editingAchievement, image: e.target.value })}
-                                        />
-                                        <label className="cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0">
-                                            {isUploading ? <span className="text-xs">...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" onChange={async (e) => {
+                                        <div className="flex-1">
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="URL Hình ảnh"
+                                                value={editingAchievement.image || ''}
+                                                onChange={e => setEditingAchievement({ ...editingAchievement, image: e.target.value })}
+                                            />
+                                            {editingAchievement.image && <img src={editingAchievement.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
+                                        </div>
+                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
                                                     const url = await handleFileUpload(file);
@@ -574,12 +596,76 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingPortfolioCategory.category}
                                         onChange={e => setEditingPortfolioCategory({ ...editingPortfolioCategory, category: e.target.value })}
                                     />
-                                    <input
-                                        className="w-full border p-2 rounded"
-                                        placeholder="Màu Gradient (ví dụ: from-blue-500 to-cyan-500)"
-                                        value={editingPortfolioCategory.gradient}
-                                        onChange={e => setEditingPortfolioCategory({ ...editingPortfolioCategory, gradient: e.target.value })}
-                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex-1">
+                                            <label className="text-sm font-medium text-gray-700 mb-1 block">Ảnh bìa</label>
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="URL Hình ảnh (Tùy chọn)"
+                                                value={editingPortfolioCategory.image || ''}
+                                                onChange={e => setEditingPortfolioCategory({ ...editingPortfolioCategory, image: e.target.value })}
+                                            />
+                                            {editingPortfolioCategory.image && <img src={editingPortfolioCategory.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
+                                        </div>
+                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''} mt-6`}>
+                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
+                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const url = await handleFileUpload(file);
+                                                    if (url) setEditingPortfolioCategory(prev => ({ ...prev!, image: url }));
+                                                }
+                                            }} />
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700 mb-2 block">Thư viện ảnh chi tiết</label>
+                                        <div className="grid grid-cols-4 gap-2 mb-2">
+                                            {editingPortfolioCategory.images?.map((img, idx) => (
+                                                <div key={idx} className="relative group">
+                                                    <img src={img} alt="" className="w-full h-24 object-cover rounded border" />
+                                                    <button
+                                                        onClick={() => {
+                                                            const newImages = [...(editingPortfolioCategory.images || [])];
+                                                            newImages.splice(idx, 1);
+                                                            setEditingPortfolioCategory({ ...editingPortfolioCategory, images: newImages });
+                                                        }}
+                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <Trash size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <label className={`flex flex-col items-center justify-center h-24 border-2 border-dashed border-gray-300 rounded hover:border-emerald-500 cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
+                                                {isUploading ? <span className="text-xs">...</span> : <Plus size={24} className="text-gray-400" />}
+                                                <span className="text-xs text-gray-500 mt-1">Thêm ảnh</span>
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    multiple
+                                                    disabled={isUploading}
+                                                    onChange={async (e) => {
+                                                        if (e.target.files) {
+                                                            setIsUploading(true);
+                                                            const newUrls: string[] = [];
+                                                            for (let i = 0; i < e.target.files.length; i++) {
+                                                                const file = e.target.files[i];
+                                                                const url = await handleFileUpload(file);
+                                                                if (url) newUrls.push(url);
+                                                            }
+                                                            setEditingPortfolioCategory(prev => ({
+                                                                ...prev!,
+                                                                images: [...(prev?.images || []), ...newUrls]
+                                                            }));
+                                                            setIsUploading(false);
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSavePortfolioCategory} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
                                         <button onClick={() => setEditingPortfolioCategory(null)} className="bg-gray-300 text-gray-800 px-4 py-2 rounded">Hủy</button>

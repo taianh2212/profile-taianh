@@ -40,13 +40,13 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
     return gradients[index % gradients.length];
   };
 
-  const displayedProjects = showAllProjects ? data.projects : data.projects.slice(0, 3);
+  const displayedProjects = showAllProjects ? data.projects : data.projects.slice(0, 4);
 
   const experience = [
-    { years: `${data.profile.yearsOfExperience}+`, label: 'Năm Kinh Nghiệm' },
-    { years: `${data.profile.projectsCount}+`, label: 'Dự Án' },
-    { years: `${data.profile.clientsCount}+`, label: 'Khách Hàng' },
-    { years: `${data.profile.technologiesCount}+`, label: 'Công Nghệ' },
+    { years: `${data.profile.seStats?.years || data.profile.yearsOfExperience}+`, label: 'Năm Kinh Nghiệm' },
+    { years: `${data.profile.seStats?.projects || data.profile.projectsCount}+`, label: 'Dự Án' },
+    { years: `${data.profile.seStats?.clients || data.profile.clientsCount}+`, label: 'Khách Hàng' },
+    { years: `${data.profile.seStats?.technologies || data.profile.technologiesCount}+`, label: 'Công Nghệ' },
   ];
 
   const levelColors: Record<string, string> = {
@@ -292,13 +292,23 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
                   transition={{ duration: 0.4, delay: 0.1 * index }}
                   className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border-2 border-emerald-200 flex items-start gap-4 hover:shadow-lg transition-all"
                 >
-                  <div className="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl shadow-lg shrink-0">
-                    {item.iconUrl ? (
-                      <img src={item.iconUrl} alt={item.title} className="w-6 h-6 object-contain" />
-                    ) : (
-                      <Award size={24} className="text-white" />
-                    )}
-                  </div>
+                  {item.image ? (
+                    <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-emerald-100 shadow-md">
+                      <ImageWithFallback
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl shadow-lg shrink-0">
+                      {item.iconUrl ? (
+                        <img src={item.iconUrl} alt={item.title} className="w-6 h-6 object-contain" />
+                      ) : (
+                        <Award size={24} className="text-white" />
+                      )}
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-xl font-bold text-emerald-900 mb-1">{item.title}</h3>
                     <p className="text-sm text-emerald-600 font-medium mb-2">{item.date}</p>
@@ -395,7 +405,7 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
           </div>
 
           {/* Show More/Less Button */}
-          {data.projects.length > 3 && (
+          {data.projects.length > 4 && (
             <motion.div
               className="flex justify-center mt-8"
               initial={{ opacity: 0 }}

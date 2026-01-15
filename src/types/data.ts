@@ -35,6 +35,22 @@ export interface ProfileData {
     projectsCount: number;
     clientsCount: number;
     technologiesCount: number;
+    customIcons?: {
+        se?: string;
+        photographer?: string;
+    };
+    seStats?: {
+        years: number;
+        projects: number;
+        clients: number;
+        technologies: number;
+    };
+    photoStats?: {
+        years: number;
+        projects: number;
+        clients: number;
+        awards: number;
+    };
 }
 
 export interface Achievement {
@@ -61,6 +77,7 @@ export interface PortfolioCategory {
     category: string;
     gradient: string;
     image?: string; // Optional cover image?
+    images?: string[]; // Additional images for the gallery
 }
 
 export interface AppData {
