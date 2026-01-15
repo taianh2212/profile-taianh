@@ -65,20 +65,56 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                 <h2 className="text-2xl font-bold mb-6 text-gray-900">Chỉnh Sửa Hồ Sơ</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-emerald-500">
-                            {formData.avatarUrl ? (
-                                <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-400">Không có ảnh</div>
-                            )}
-                        </div>
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                        {/* Avatar */}
                         <div>
-                            <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                <Upload size={18} />
-                                {isUploading ? 'Đang Tải Lên...' : 'Tải Ảnh Đại Diện'}
-                                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Ảnh Đại Diện</label>
+                            <div className="flex items-center gap-4">
+                                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-emerald-500 shrink-0">
+                                    {formData.avatarUrl ? (
+                                        <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
+                                    )}
+                                </div>
+                                <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    <Upload size={16} /> Tải ảnh
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Background Image */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Ảnh Nền</label>
+                            <div className="flex items-center gap-4">
+                                <div className="w-32 h-20 rounded-lg overflow-hidden bg-gray-100 border-2 border-emerald-500 shrink-0">
+                                    {formData.backgroundImageUrl ? (
+                                        <img src={formData.backgroundImageUrl} alt="Background" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs text-center">No Img</div>
+                                    )}
+                                </div>
+                                <label className={`cursor-pointer bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    <Upload size={16} /> Tải ảnh
+                                    <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setIsUploading(true);
+                                            const formDataUpload = new FormData();
+                                            formDataUpload.append('file', file);
+                                            try {
+                                                const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
+                                                const data = await res.json();
+                                                if (data.url) {
+                                                    setFormData(prev => ({ ...prev, backgroundImageUrl: data.url }));
+                                                }
+                                            } catch (err) { console.error(err); }
+                                            setIsUploading(false);
+                                        }
+                                    }} />
+                                </label>
+                            </div>
                         </div>
                     </div>
 

@@ -39,6 +39,7 @@ export interface ProfileData {
         se?: string;
         photographer?: string;
     };
+    backgroundImageUrl?: string;
     seStats?: {
         years: number;
         projects: number;

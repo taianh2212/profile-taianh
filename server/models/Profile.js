@@ -11,6 +11,7 @@ const ProfileSchema = new mongoose.Schema({
             se: String,
             photographer: String
         },
+        backgroundImageUrl: String,
         seStats: {
             years: Number,
             projects: Number,

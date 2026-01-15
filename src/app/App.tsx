@@ -4,10 +4,12 @@ import { HomePage } from '@/app/components/HomePage';
 import { SoftwareEngineerProfile } from '@/app/components/SoftwareEngineerProfile';
 import { PhotographerProfile } from '@/app/components/PhotographerProfile';
 import bgImage from '@/assets/TaiAnh-07259.jpg';
+import { useData } from '@/context/DataContext';
 
 type View = 'home' | 'se' | 'photographer';
 
 export default function App() {
+  const { data } = useData();
   const [currentView, setCurrentView] = useState<View>('home');
 
   const handleSelectSkill = (skill: 'se' | 'photographer') => {
@@ -24,7 +26,7 @@ export default function App() {
       <div
         className="fixed inset-0 z-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url(${bgImage})`,
+          backgroundImage: `url(${data?.profile?.backgroundImageUrl || bgImage})`,
           filter: 'blur(8px)',
           opacity: 0.8
         }}
