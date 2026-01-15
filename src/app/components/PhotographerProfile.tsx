@@ -63,14 +63,14 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
             <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
               {/* Cover Image */}
               {selectedProject.image && (
-                <div className="rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center" style={{ minHeight: '300px' }}>
-                  <ImageWithFallback src={selectedProject.image} alt="Cover" className="w-full h-auto max-h-[600px] object-contain" />
+                <div className="rounded-lg overflow-hidden">
+                  <ImageWithFallback src={selectedProject.image} alt="Cover" className="w-full h-auto object-cover" />
                 </div>
               )}
               {/* Additional Images */}
               {selectedProject.images?.map((img, idx) => (
-                <div key={idx} className="rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center" style={{ minHeight: '300px' }}>
-                  <ImageWithFallback src={img} alt={`Gallery ${idx}`} className="w-full h-auto max-h-[600px] object-contain hover:scale-105 transition-transform duration-500" />
+                <div key={idx} className="rounded-lg overflow-hidden">
+                  <ImageWithFallback src={img} alt={`Gallery ${idx}`} className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
                 </div>
               ))}
               {(!selectedProject.images || selectedProject.images.length === 0) && !selectedProject.image && (
