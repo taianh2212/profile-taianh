@@ -47,6 +47,7 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
     });
 
     const portfolioGalleryUpload = useCloudinaryUpload({
+        multiple: true, // Enable multiple file uploads
         onSuccess: (url) => {
             setEditingPortfolioCategory(prev => ({
                 ...prev!,

@@ -316,7 +316,9 @@ export function HomePage({ onSelectSkill }: HomePageProps) {
             />
           </motion.a>
           <motion.a
-            href="#"
+            href="https://zalo.me/0985352059"
+            target="_blank"
+            rel="noopener noreferrer"
             className="p-3 bg-white/50 backdrop-blur-sm rounded-xl border-2 border-emerald-200 hover:border-emerald-400 transition-all flex items-center justify-center"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}

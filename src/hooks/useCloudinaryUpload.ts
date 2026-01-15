@@ -3,13 +3,14 @@ import { useCallback } from 'react';
 interface CloudinaryUploadOptions {
   onSuccess?: (url: string) => void;
   onError?: (error: Error) => void;
+  multiple?: boolean; // Allow multiple file uploads
 }
 
 // Cloudinary configuration
 const CLOUD_NAME = 'dx5szhyyt';
 const UPLOAD_PRESET = 'profile'; // Unsigned upload preset from Cloudinary
 
-export function useCloudinaryUpload({ onSuccess, onError }: CloudinaryUploadOptions = {}) {
+export function useCloudinaryUpload({ onSuccess, onError, multiple = false }: CloudinaryUploadOptions = {}) {
   const openUploadWidget = useCallback(() => {
     // @ts-ignore - Cloudinary widget is loaded via script tag
     if (typeof window.cloudinary === 'undefined') {
@@ -24,12 +25,12 @@ export function useCloudinaryUpload({ onSuccess, onError }: CloudinaryUploadOpti
         cloudName: CLOUD_NAME,
         uploadPreset: UPLOAD_PRESET,
         sources: ['local', 'url', 'camera'],
-        multiple: false,
+        multiple: multiple, // Use the multiple parameter
         maxFileSize: 10000000, // 10MB
         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         maxImageWidth: 2000,
         maxImageHeight: 2000,
-        cropping: true,
+        cropping: !multiple, // Disable cropping for multiple uploads
         croppingAspectRatio: 1,
         croppingShowDimensions: true,
         showSkipCropButton: true,
@@ -70,7 +71,7 @@ export function useCloudinaryUpload({ onSuccess, onError }: CloudinaryUploadOpti
     );
 
     widget.open();
-  }, [onSuccess, onError]);
+  }, [onSuccess, onError, multiple]); // Add multiple to dependencies
 
   return { openUploadWidget };
 }
