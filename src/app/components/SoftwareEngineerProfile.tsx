@@ -334,16 +334,25 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <AnimatePresence mode="popLayout">
-              {displayedProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4, delay: showAllProjects ? 0 : 0.1 * index }}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  className="relative bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-2xl group"
-                >
+              {displayedProjects.map((project, index) => {
+                const ProjectWrapper = project.link 
+                  ? ({ children }: { children: React.ReactNode }) => (
+                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
+                        {children}
+                      </a>
+                    )
+                  : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+                
+                return (
+                  <ProjectWrapper key={project.id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4, delay: showAllProjects ? 0 : 0.1 * index }}
+                      whileHover={{ scale: 1.02, y: -5 }}
+                      className={`relative bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-2xl group ${project.link ? 'cursor-pointer' : ''}`}
+                    >
                   {/* Image Section */}
                   <div className="relative h-48 overflow-hidden bg-gray-200">
                     <ImageWithFallback
@@ -400,7 +409,9 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              </ProjectWrapper>
+            );
+          })}
             </AnimatePresence>
           </div>
 

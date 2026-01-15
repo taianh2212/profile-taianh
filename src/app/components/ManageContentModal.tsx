@@ -249,6 +249,12 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingProject.technologies?.join(', ')}
                                         onChange={e => setEditingProject({ ...editingProject, technologies: e.target.value.split(',').map(s => s.trim()) })}
                                     />
+                                    <input
+                                        className="w-full border p-2 rounded"
+                                        placeholder="Link dự án (URL)"
+                                        value={editingProject.link || ''}
+                                        onChange={e => setEditingProject({ ...editingProject, link: e.target.value })}
+                                    />
                                     <select
                                         className="w-full border p-2 rounded"
                                         value={editingProject.status}
