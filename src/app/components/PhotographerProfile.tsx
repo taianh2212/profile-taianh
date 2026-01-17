@@ -310,14 +310,14 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
                 >
                   <div className="flex items-start gap-4">
                     <motion.div
-                      className={`p-4 bg-gradient-to-br ${item.color} rounded-xl shadow-lg relative overflow-hidden`}
+                      className={`w-20 h-20 flex-shrink-0 flex items-center justify-center bg-gradient-to-br ${item.color} rounded-lg shadow-lg relative overflow-hidden`}
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
-                        <Icon size={28} className="text-white" strokeWidth={2.5} />
+                        <Icon size={40} className="text-white" strokeWidth={2} />
                       )}
                     </motion.div>
                     <div>
