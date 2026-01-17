@@ -48,6 +48,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
         onError: (error) => alert(`Lỗi upload: ${error.message}`)
     });
 
+    const serviceImageUpload = useCloudinaryUpload({
+        onSuccess: (url) => setEditingService(prev => ({ ...prev!, image: url })),
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
+
     const portfolioGalleryUpload = useCloudinaryUpload({
         multiple: true, // Enable multiple file uploads
         onSuccess: (url) => {
@@ -577,12 +582,34 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                         value={editingService.description}
                                         onChange={e => setEditingService({ ...editingService, description: e.target.value })}
                                     />
-                                    <input
-                                        className="w-full border p-2 rounded"
-                                        placeholder="Tên Icon (ví dụ: Users, Heart, Camera...)"
-                                        value={editingService.icon}
-                                        onChange={e => setEditingService({ ...editingService, icon: e.target.value })}
-                                    />
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex-1">
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="Tên Icon (ví dụ: Users, Heart, Camera...)"
+                                                value={editingService.icon}
+                                                onChange={e => setEditingService({ ...editingService, icon: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex-1">
+                                            <input
+                                                className="w-full border p-2 rounded"
+                                                placeholder="URL Hình ảnh (Nếu có sẽ thay thế Icon)"
+                                                value={editingService.image || ''}
+                                                onChange={e => setEditingService({ ...editingService, image: e.target.value })}
+                                            />
+                                            {editingService.image && <img src={editingService.image} alt="Preview" className="mt-2 h-20 w-auto rounded border" />}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={serviceImageUpload.openUploadWidget}
+                                            className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 p-2 rounded hover:bg-emerald-100 flex-shrink-0 flex items-center gap-2"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
+                                    </div>
                                     <input
                                         className="w-full border p-2 rounded"
                                         placeholder="Màu Gradient (ví dụ: from-pink-500 to-rose-500)"

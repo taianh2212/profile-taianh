@@ -70,6 +70,7 @@ export interface Service {
     name: string;
     description: string;
     icon: string; // Name of Lucide icon
+    image?: string; // Optional image URL
     color: string; // Gradient class
 }
 
