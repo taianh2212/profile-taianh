@@ -239,12 +239,12 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
                   {/* Icon and Level Badge */}
                   <div className="flex items-start justify-between mb-4">
                     <motion.div
-                      className={`p-3 bg-gradient-to-br ${getGradient(index)} rounded-xl shadow-lg flex items-center justify-center overflow-hidden`}
+                      className={`w-[52px] h-[52px] bg-gradient-to-br ${getGradient(index)} rounded-xl shadow-lg flex items-center justify-center relative overflow-hidden`}
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
                       {skill.iconUrl ? (
-                        <img src={skill.iconUrl} alt={skill.name} className="w-7 h-7 object-contain" />
+                        <img src={skill.iconUrl} alt={skill.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <Icon size={28} className="text-white" strokeWidth={2.5} />
                       )}
