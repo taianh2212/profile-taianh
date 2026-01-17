@@ -315,7 +315,7 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
                       transition={{ duration: 0.6 }}
                     >
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-7 h-7 object-cover rounded" />
+                        <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <Icon size={28} className="text-white" strokeWidth={2.5} />
                       )}

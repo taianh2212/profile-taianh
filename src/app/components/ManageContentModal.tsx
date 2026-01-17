@@ -30,11 +30,16 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
     const [editingExperience, setEditingExperience] = useState<Partial<Experience> | null>(null);
     const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
     const [editingPortfolioCategory, setEditingPortfolioCategory] = useState<Partial<PortfolioCategory> | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
+    // Removed isUploading state
 
     // Cloudinary upload hooks
     const projectImageUpload = useCloudinaryUpload({
         onSuccess: (url) => setEditingProject(prev => ({ ...prev!, image: url })),
+        onError: (error) => alert(`Lỗi upload: ${error.message}`)
+    });
+
+    const skillIconUpload = useCloudinaryUpload({
+        onSuccess: (url) => setEditingSkill(prev => ({ ...prev!, iconUrl: url })),
         onError: (error) => alert(`Lỗi upload: ${error.message}`)
     });
 
@@ -64,11 +69,8 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
         onError: (error) => alert(`Lỗi upload: ${error.message}`)
     });
 
-    const handleFileUpload = async (file: File) => {
-        // This function is no longer used but kept for compatibility
-        console.error('handleFileUpload is deprecated, use Cloudinary widget instead');
-        return null;
-    };
+    // handleFileUpload removed
+
 
     if (!isOpen) return null;
 
@@ -359,16 +361,13 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                             />
                                             {editingSkill.iconUrl && <img src={editingSkill.iconUrl} alt="Preview" className="mt-2 h-10 w-10 rounded-full border bg-gray-50 object-contain" />}
                                         </div>
-                                        <label className={`cursor-pointer bg-gray-100 border p-2 rounded hover:bg-gray-200 flex-shrink-0 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                            {isUploading ? <span className="text-xs">Uploading...</span> : <Upload size={20} />}
-                                            <input type="file" className="hidden" accept="image/*" disabled={isUploading} onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const url = await handleFileUpload(file);
-                                                    if (url) setEditingSkill(prev => ({ ...prev!, iconUrl: url }));
-                                                }
-                                            }} />
-                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={skillIconUpload.openUploadWidget}
+                                            className="cursor-pointer bg-emerald-50 text-emerald-600 border border-emerald-200 p-2 rounded hover:bg-emerald-100 flex-shrink-0 flex items-center gap-2"
+                                        >
+                                            <Upload size={20} />
+                                        </button>
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleSaveSkill} className="bg-emerald-600 text-white px-4 py-2 rounded">Lưu</button>
