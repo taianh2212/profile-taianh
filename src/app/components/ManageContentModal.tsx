@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { X, Plus, Trash, Edit, Upload } from 'lucide-react';
+import { X, Plus, Trash, Edit, Upload, ArrowUp, ArrowDown } from 'lucide-react';
 import { Project, Skill, Achievement, Experience, Service, PortfolioCategory } from '@/types/data';
 import { useCloudinaryUpload } from '@/hooks/useCloudinaryUpload';
 
@@ -18,7 +18,8 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
         addAchievement, updateAchievement, deleteAchievement,
         addExperience, updateExperience, deleteExperience,
         addService, updateService, deleteService,
-        addPortfolioCategory, updatePortfolioCategory, deletePortfolioCategory
+        addPortfolioCategory, updatePortfolioCategory, deletePortfolioCategory,
+        moveProject, moveSkill, moveAchievement, moveExperience, moveService, movePortfolioCategory
     } = useData();
     const [activeTab, setActiveTab] = useState<'projects' | 'skills' | 'achievements' | 'experience' | 'services' | 'portfolio'>(defaultTab);
 
@@ -29,6 +30,7 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
     const [editingExperience, setEditingExperience] = useState<Partial<Experience> | null>(null);
     const [editingService, setEditingService] = useState<Partial<Service> | null>(null);
     const [editingPortfolioCategory, setEditingPortfolioCategory] = useState<Partial<PortfolioCategory> | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Cloudinary upload hooks
     const projectImageUpload = useCloudinaryUpload({
@@ -214,7 +216,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                         {p.technologies.map(t => <span key={t} className="text-xs bg-gray-100 px-2 py-1 rounded">{t}</span>)}
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => moveProject(p.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => moveProject(p.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingProject(p)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deleteProject(p.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -301,7 +307,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                     <h3 className="font-bold">{s.name}</h3>
                                                     <p className="text-sm text-gray-500">{s.level} • {s.yearsOfExperience} years</p>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => moveSkill(s.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => moveSkill(s.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingSkill(s)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deleteSkill(s.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -382,7 +392,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                     <p className="text-sm text-gray-500">{a.description}</p>
                                                     <p className="text-xs text-gray-400">{a.date}</p>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => moveAchievement(a.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => moveAchievement(a.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingAchievement(a)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deleteAchievement(a.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -458,7 +472,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                         {e.description.length > 2 && <li>...</li>}
                                                     </ul>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => moveExperience(e.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => moveExperience(e.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingExperience(e)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deleteExperience(e.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -533,7 +551,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                     <p className="text-sm text-gray-500">{s.description}</p>
                                                     <p className="text-xs text-gray-400">Icon: {s.icon}</p>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => moveService(s.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => moveService(s.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingService(s)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deleteService(s.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -593,7 +615,11 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                                     <h3 className="font-bold">{c.category}</h3>
                                                     <p className="text-xs text-gray-400">{c.gradient}</p>
                                                 </div>
-                                                <div className="flex gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="flex flex-col gap-1 mr-2">
+                                                        <button onClick={() => movePortfolioCategory(c.id, 'up')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowUp size={16} /></button>
+                                                        <button onClick={() => movePortfolioCategory(c.id, 'down')} className="p-1 hover:bg-gray-100 rounded text-gray-500"><ArrowDown size={16} /></button>
+                                                    </div>
                                                     <button onClick={() => setEditingPortfolioCategory(c)} className="p-2 text-blue-500 hover:bg-blue-50 rounded"><Edit size={18} /></button>
                                                     <button onClick={() => deletePortfolioCategory(c.id)} className="p-2 text-red-500 hover:bg-red-50 rounded"><Trash size={18} /></button>
                                                 </div>
@@ -646,9 +672,9 @@ export function ManageContentModal({ isOpen, onClose, defaultTab = 'projects' }:
                                             placeholder="Hoặc nhập URLs phân cách bằng dấu phẩy"
                                             rows={2}
                                             value={editingPortfolioCategory.images?.join(', ') || ''}
-                                            onChange={e => setEditingPortfolioCategory({ 
-                                                ...editingPortfolioCategory, 
-                                                images: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
+                                            onChange={e => setEditingPortfolioCategory({
+                                                ...editingPortfolioCategory,
+                                                images: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                                             })}
                                         />
                                         {editingPortfolioCategory.images && editingPortfolioCategory.images.length > 0 && (

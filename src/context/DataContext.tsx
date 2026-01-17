@@ -23,7 +23,12 @@ interface DataContextType {
     addPortfolioCategory: (category: PortfolioCategory) => void;
     updatePortfolioCategory: (id: string, category: Partial<PortfolioCategory>) => void;
     deletePortfolioCategory: (id: string) => void;
-    // Add other handlers
+    moveProject: (id: string, direction: 'up' | 'down') => void;
+    moveSkill: (id: string, direction: 'up' | 'down') => void;
+    moveAchievement: (id: string, direction: 'up' | 'down') => void;
+    moveExperience: (id: string, direction: 'up' | 'down') => void;
+    moveService: (id: string, direction: 'up' | 'down') => void;
+    movePortfolioCategory: (id: string, direction: 'up' | 'down') => void;
 }
 
 const initialData: AppData = {
@@ -255,6 +260,27 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         setData(prev => ({ ...prev, portfolioCategories: prev.portfolioCategories.filter(c => c.id !== id) }));
     };
 
+    const moveItem = (key: keyof AppData, id: string, direction: 'up' | 'down') => {
+        setData(prev => {
+            const list = prev[key];
+            if (!Array.isArray(list)) return prev;
+
+            const index = list.findIndex((item: any) => item.id === id);
+            if (index === -1) return prev;
+
+            const newList = [...list];
+            if (direction === 'up') {
+                if (index === 0) return prev;
+                [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
+            } else {
+                if (index === newList.length - 1) return prev;
+                [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
+            }
+
+            return { ...prev, [key]: newList };
+        });
+    };
+
     return (
         <DataContext.Provider value={{
             data,
@@ -277,6 +303,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             addPortfolioCategory,
             updatePortfolioCategory,
             deletePortfolioCategory,
+            moveProject: (id, direction) => moveItem('projects', id, direction),
+            moveSkill: (id, direction) => moveItem('skills', id, direction),
+            moveAchievement: (id, direction) => moveItem('achievements', id, direction),
+            moveExperience: (id, direction) => moveItem('experiences', id, direction),
+            moveService: (id, direction) => moveItem('services', id, direction),
+            movePortfolioCategory: (id, direction) => moveItem('portfolioCategories', id, direction),
         }}>
             {children}
         </DataContext.Provider>
