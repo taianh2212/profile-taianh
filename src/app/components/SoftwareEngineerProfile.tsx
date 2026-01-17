@@ -99,8 +99,12 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
             whileHover={{ scale: 1.05 }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-3xl blur-2xl opacity-40"></div>
-            <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl">
-              <Code size={56} className="text-white" strokeWidth={2.5} />
+            <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl overflow-hidden">
+              {data.profile.customIcons?.se ? (
+                <img src={data.profile.customIcons.se} alt="Software Engineer" className="w-full h-full object-cover" />
+              ) : (
+                <Code size={56} className="text-white" strokeWidth={2.5} />
+              )}
             </div>
           </motion.div>
 
@@ -337,14 +341,14 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
           <div className="grid md:grid-cols-2 gap-6">
             <AnimatePresence mode="popLayout">
               {displayedProjects.map((project, index) => {
-                const ProjectWrapper = project.link 
+                const ProjectWrapper = project.link
                   ? ({ children }: { children: React.ReactNode }) => (
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
-                        {children}
-                      </a>
-                    )
+                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
+                      {children}
+                    </a>
+                  )
                   : ({ children }: { children: React.ReactNode }) => <>{children}</>;
-                
+
                 return (
                   <ProjectWrapper key={project.id}>
                     <motion.div
@@ -355,65 +359,65 @@ export function SoftwareEngineerProfile({ onBack }: SoftwareEngineerProfileProps
                       whileHover={{ scale: 1.02, y: -5 }}
                       className={`relative bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-lg hover:shadow-2xl group ${project.link ? 'cursor-pointer' : ''}`}
                     >
-                  {/* Image Section */}
-                  <div className="relative h-48 overflow-hidden bg-gray-200">
-                    <ImageWithFallback
-                      src={project.image || ''}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-30 group-hover:opacity-40 transition-opacity`}></div>
+                      {/* Image Section */}
+                      <div className="relative h-48 overflow-hidden bg-gray-200">
+                        <ImageWithFallback
+                          src={project.image || ''}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className={`absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-30 group-hover:opacity-40 transition-opacity`}></div>
 
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${project.status === 'Live'
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-orange-500 text-white'
-                        }`}>
-                        {project.status || 'Concept'}
-                      </span>
-                    </div>
+                        {/* Status Badge */}
+                        <div className="absolute top-4 right-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${project.status === 'Live'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-orange-500 text-white'
+                            }`}>
+                            {project.status || 'Concept'}
+                          </span>
+                        </div>
 
-                    {/* Icon */}
-                    <motion.div
-                      className="absolute top-4 left-4 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <Briefcase size={24} className="text-emerald-600" strokeWidth={2.5} />
-                    </motion.div>
-                  </div>
+                        {/* Icon */}
+                        <motion.div
+                          className="absolute top-4 left-4 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg"
+                          whileHover={{ rotate: 360 }}
+                          transition={{ duration: 0.6 }}
+                        >
+                          <Briefcase size={24} className="text-emerald-600" strokeWidth={2.5} />
+                        </motion.div>
+                      </div>
 
-                  {/* Content Section */}
-                  <div className="p-6">
-                    <h3
-                      className="text-xl md:text-2xl mb-2 text-emerald-900 font-bold"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      {project.title}
-                    </h3>
-                    <p
-                      className="text-emerald-700 leading-relaxed mb-4"
-                      style={{ fontFamily: 'var(--font-sans)' }}
-                    >
-                      {project.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium hover:bg-emerald-200 transition-colors"
+                      {/* Content Section */}
+                      <div className="p-6">
+                        <h3
+                          className="text-xl md:text-2xl mb-2 text-emerald-900 font-bold"
+                          style={{ fontFamily: 'var(--font-display)' }}
+                        >
+                          {project.title}
+                        </h3>
+                        <p
+                          className="text-emerald-700 leading-relaxed mb-4"
                           style={{ fontFamily: 'var(--font-sans)' }}
                         >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              </ProjectWrapper>
-            );
-          })}
+                          {project.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.technologies.map((tech) => (
+                            <span
+                              key={tech}
+                              className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium hover:bg-emerald-200 transition-colors"
+                              style={{ fontFamily: 'var(--font-sans)' }}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </ProjectWrapper>
+                );
+              })}
             </AnimatePresence>
           </div>
 

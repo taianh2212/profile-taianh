@@ -126,8 +126,12 @@ export function PhotographerProfile({ onBack }: PhotographerProfileProps) {
             whileHover={{ scale: 1.05 }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-3xl blur-2xl opacity-40"></div>
-            <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl shadow-2xl">
-              <Camera size={56} className="text-white" strokeWidth={2.5} />
+            <div className="relative inline-flex items-center justify-center w-24 h-24 md:w-28 md:h-28 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl shadow-2xl overflow-hidden">
+              {data.profile.customIcons?.photographer ? (
+                <img src={data.profile.customIcons.photographer} alt="Photographer" className="w-full h-full object-cover" />
+              ) : (
+                <Camera size={56} className="text-white" strokeWidth={2.5} />
+              )}
             </div>
           </motion.div>
 
