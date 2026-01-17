@@ -119,10 +119,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     }
                 } else {
                     console.error('API fetch failed with status:', res.status);
+                    // Fallback to localStorage if API returns error (e.g. 404/500)
+                    const saved = localStorage.getItem('appData');
+                    if (saved) {
+                        console.log('Using localStorage data (fallback)');
+                        setData(JSON.parse(saved));
+                    }
                 }
             } catch (error) {
                 console.error('Failed to fetch data from backend, using local/initial data:', error);
-                // Fallback to localStorage if API fails
+                // Fallback to localStorage if API fails (network error)
                 const saved = localStorage.getItem('appData');
                 if (saved) {
                     console.log('Using localStorage data');
