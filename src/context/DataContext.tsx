@@ -83,7 +83,8 @@ const initialData: AppData = {
     portfolioCategories: [
         { id: '1', category: 'Portrait', gradient: 'from-pink-500 to-rose-600' },
         { id: '2', category: 'Landscape', gradient: 'from-green-500 to-emerald-600' }
-    ]
+    ],
+    lastUpdated: Date.now()
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -93,45 +94,76 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Initial Fetch
+    // Initial Fetch with Conflict Resolution
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Get local data first
+                const saved = localStorage.getItem('appData');
+                let localData: AppData | null = null;
+                if (saved) {
+                    try {
+                        localData = JSON.parse(saved);
+                    } catch (e) {
+                        console.error('Error parsing local data', e);
+                    }
+                }
+
                 console.log('Fetching data from API...');
-                // Use relative URL for both dev (via proxy) and prod (Vercel)
                 const res = await fetch('/api/data');
+
                 if (res.ok) {
                     const dbData = await res.json();
                     console.log('Data fetched from DB:', dbData);
+
                     if (dbData && dbData.profile) {
-                        // Use DB data completely, don't merge with initialData
-                        setData(dbData);
+                        // CONFLICT RESOLUTION
+                        if (localData && localData.lastUpdated && dbData.lastUpdated) {
+                            if (localData.lastUpdated > dbData.lastUpdated) {
+                                console.log(`Local data is newer (${localData.lastUpdated} vs ${dbData.lastUpdated}). Keeping local data and syncing to DB.`);
+                                setData(localData);
+                            } else {
+                                console.log('DB data is newer or equal. Using DB data.');
+                                setData(dbData);
+                            }
+                        } else {
+                            // If missing timestamps, prioritize DB but log it
+                            console.log('No timestamp comparison possible, using DB data');
+                            setData(dbData);
+                        }
                     } else {
-                        console.log('No data in DB, using initialData');
-                        // First time, save initialData to DB
-                        const saveRes = await fetch('/api/data', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(initialData)
-                        });
-                        if (saveRes.ok) {
-                            console.log('Initial data saved to DB');
+                        console.log('No data in DB');
+                        if (localData) {
+                            console.log('Using local data');
+                            setData(localData);
+                            // Trigger save to DB since DB is empty
+                            fetch('/api/data', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(localData)
+                            });
+                        } else {
+                            console.log('No data in DB or Local, using initialData');
+                            // First time, save initialData to DB
+                            fetch('/api/data', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(initialData)
+                            });
                         }
                     }
                 } else {
                     console.error('API fetch failed with status:', res.status);
                     // Fallback to localStorage if API returns error (e.g. 404/500)
-                    const saved = localStorage.getItem('appData');
-                    if (saved) {
+                    if (localData) {
                         console.log('Using localStorage data (fallback)');
-                        setData(JSON.parse(saved));
+                        setData(localData);
                     }
                 }
             } catch (error) {
                 console.error('Failed to fetch data from backend, using local/initial data:', error);
-                // Fallback to localStorage if API fails (network error)
                 const saved = localStorage.getItem('appData');
                 if (saved) {
-                    console.log('Using localStorage data');
                     setData(JSON.parse(saved));
                 }
             }
@@ -173,97 +205,103 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }, [data]);
 
     const updateProfile = (updates: Partial<ProfileData>) => {
-        setData(prev => ({ ...prev, profile: { ...prev.profile, ...updates } }));
+        setData(prev => ({ ...prev, profile: { ...prev.profile, ...updates }, lastUpdated: Date.now() }));
     };
 
     const addProject = (project: Project) => {
-        setData(prev => ({ ...prev, projects: [...prev.projects, project] }));
+        setData(prev => ({ ...prev, projects: [...prev.projects, project], lastUpdated: Date.now() }));
     };
 
     const updateProject = (id: string, updates: Partial<Project>) => {
         setData(prev => ({
             ...prev,
-            projects: prev.projects.map(p => p.id === id ? { ...p, ...updates } : p)
+            projects: prev.projects.map(p => p.id === id ? { ...p, ...updates } : p),
+            lastUpdated: Date.now()
         }));
     };
 
     const deleteProject = (id: string) => {
-        setData(prev => ({ ...prev, projects: prev.projects.filter(p => p.id !== id) }));
+        setData(prev => ({ ...prev, projects: prev.projects.filter(p => p.id !== id), lastUpdated: Date.now() }));
     };
 
     const addSkill = (skill: Skill) => {
-        setData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
+        setData(prev => ({ ...prev, skills: [...prev.skills, skill], lastUpdated: Date.now() }));
     };
 
     const updateSkill = (id: string, updates: Partial<Skill>) => {
         setData(prev => ({
             ...prev,
-            skills: prev.skills.map(s => s.id === id ? { ...s, ...updates } : s)
+            skills: prev.skills.map(s => s.id === id ? { ...s, ...updates } : s),
+            lastUpdated: Date.now()
         }));
     };
 
     const deleteSkill = (id: string) => {
-        setData(prev => ({ ...prev, skills: prev.skills.filter(s => s.id !== id) }));
+        setData(prev => ({ ...prev, skills: prev.skills.filter(s => s.id !== id), lastUpdated: Date.now() }));
     };
 
     const addAchievement = (achievement: Achievement) => {
-        setData(prev => ({ ...prev, achievements: [...prev.achievements, achievement] }));
+        setData(prev => ({ ...prev, achievements: [...prev.achievements, achievement], lastUpdated: Date.now() }));
     };
 
     const updateAchievement = (id: string, updates: Partial<Achievement>) => {
         setData(prev => ({
             ...prev,
-            achievements: prev.achievements.map(a => a.id === id ? { ...a, ...updates } : a)
+            achievements: prev.achievements.map(a => a.id === id ? { ...a, ...updates } : a),
+            lastUpdated: Date.now()
         }));
     };
 
     const deleteAchievement = (id: string) => {
-        setData(prev => ({ ...prev, achievements: prev.achievements.filter(a => a.id !== id) }));
+        setData(prev => ({ ...prev, achievements: prev.achievements.filter(a => a.id !== id), lastUpdated: Date.now() }));
     };
 
     const addExperience = (experience: Experience) => {
-        setData(prev => ({ ...prev, experiences: [...prev.experiences, experience] }));
+        setData(prev => ({ ...prev, experiences: [...prev.experiences, experience], lastUpdated: Date.now() }));
     };
 
     const updateExperience = (id: string, updates: Partial<Experience>) => {
         setData(prev => ({
             ...prev,
-            experiences: prev.experiences.map(e => e.id === id ? { ...e, ...updates } : e)
+            experiences: prev.experiences.map(e => e.id === id ? { ...e, ...updates } : e),
+            lastUpdated: Date.now()
         }));
     };
 
     const deleteExperience = (id: string) => {
-        setData(prev => ({ ...prev, experiences: prev.experiences.filter(e => e.id !== id) }));
+        setData(prev => ({ ...prev, experiences: prev.experiences.filter(e => e.id !== id), lastUpdated: Date.now() }));
     };
 
     const addService = (service: Service) => {
-        setData(prev => ({ ...prev, services: [...prev.services, service] }));
+        setData(prev => ({ ...prev, services: [...prev.services, service], lastUpdated: Date.now() }));
     };
 
     const updateService = (id: string, updates: Partial<Service>) => {
         setData(prev => ({
             ...prev,
-            services: prev.services.map(s => s.id === id ? { ...s, ...updates } : s)
+            services: prev.services.map(s => s.id === id ? { ...s, ...updates } : s),
+            lastUpdated: Date.now()
         }));
     };
 
     const deleteService = (id: string) => {
-        setData(prev => ({ ...prev, services: prev.services.filter(s => s.id !== id) }));
+        setData(prev => ({ ...prev, services: prev.services.filter(s => s.id !== id), lastUpdated: Date.now() }));
     };
 
     const addPortfolioCategory = (category: PortfolioCategory) => {
-        setData(prev => ({ ...prev, portfolioCategories: [...prev.portfolioCategories, category] }));
+        setData(prev => ({ ...prev, portfolioCategories: [...prev.portfolioCategories, category], lastUpdated: Date.now() }));
     };
 
     const updatePortfolioCategory = (id: string, updates: Partial<PortfolioCategory>) => {
         setData(prev => ({
             ...prev,
-            portfolioCategories: prev.portfolioCategories.map(c => c.id === id ? { ...c, ...updates } : c)
+            portfolioCategories: prev.portfolioCategories.map(c => c.id === id ? { ...c, ...updates } : c),
+            lastUpdated: Date.now()
         }));
     };
 
     const deletePortfolioCategory = (id: string) => {
-        setData(prev => ({ ...prev, portfolioCategories: prev.portfolioCategories.filter(c => c.id !== id) }));
+        setData(prev => ({ ...prev, portfolioCategories: prev.portfolioCategories.filter(c => c.id !== id), lastUpdated: Date.now() }));
     };
 
     const moveItem = (key: keyof AppData, id: string, direction: 'up' | 'down') => {
@@ -283,7 +321,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
             }
 
-            return { ...prev, [key]: newList };
+            return { ...prev, [key]: newList, lastUpdated: Date.now() };
         });
     };
 

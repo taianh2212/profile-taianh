@@ -90,4 +90,5 @@ export interface AppData {
     achievements: Achievement[];
     services: Service[];
     portfolioCategories: PortfolioCategory[];
+    lastUpdated?: number;
 }

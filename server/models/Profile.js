@@ -77,4 +77,8 @@ const ProfileSchema = new mongoose.Schema({
     }]
 }, { timestamps: true });
 
+ProfileSchema.add({
+    lastUpdated: Number
+});
+
 export default mongoose.model('Profile', ProfileSchema);
